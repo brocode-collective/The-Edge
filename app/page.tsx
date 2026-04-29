@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, ArrowRight, Smartphone } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PWABanner } from "@/components/layout/PWABanner";
@@ -100,22 +100,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-              {/* Floating pickup code card */}
-              <div className="absolute -bottom-5 -left-4 sm:left-6 bg-background rounded-2xl p-4 shadow-elevated border border-border w-[230px] animate-fade-up">
-                <div className="label-mono mb-1.5">PICKUP CODE</div>
-                <div className="font-mono text-3xl font-bold tracking-widest">A7K9</div>
-                <div className="mt-2 flex items-center gap-2 text-xs text-success-foreground">
-                  <span className="w-2 h-2 rounded-full bg-success animate-pulse-soft" /> Ready in 4 min
-                </div>
-              </div>
-              {/* Floating PWA card */}
-              <div className="absolute -top-3 -right-3 sm:-right-4 bg-background rounded-2xl p-3 pl-4 pr-5 shadow-elevated border border-border flex items-center gap-3">
-                <Smartphone className="w-4 h-4 text-primary" />
-                <div className="text-xs">
-                  <div className="font-semibold">Add to Home Screen</div>
-                  <div className="text-muted-foreground">For 1-tap access</div>
-                </div>
-              </div>
+
             </div>
           </div>
         </div>
@@ -242,26 +227,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ── PWA NUDGE ── */}
-      <section className="container mx-auto px-4 py-14">
-        <div className="rounded-[2rem] hero-gradient p-8 sm:p-12 text-white shadow-pop relative overflow-hidden">
-          <div className="relative max-w-2xl">
-            <div className="label-mono text-white/80 mb-3">● Pro tip</div>
-            <h3 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              Install THE EDGE on your phone
-            </h3>
-            <p className="mt-3 text-white/90 leading-relaxed">
-              Add to your home screen for one-tap ordering. No app store, no install size — just speed.
-            </p>
-            <button
-              id="pwa-install-btn"
-              className="mt-6 pill bg-white text-foreground px-6 py-3 font-medium hover:bg-white/90 transition-smooth focus-dashed"
-            >
-              How to install
-            </button>
-          </div>
-        </div>
-      </section>
+
 
       <Footer />
       <PWABanner />
