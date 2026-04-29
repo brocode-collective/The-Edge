@@ -1,0 +1,37 @@
+{
+  "name": "THE EDGE",
+  "short_name": "The Edge",
+  "description": "Campus food ordering PWA — order ahead, skip the queue.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b9eff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "lifestyle", "shopping"],
+  "shortcuts": [
+    {
+      "name": "Browse food",
+      "url": "/browse",
+      "description": "Browse all campus menus"
+    },
+    {
+      "name": "My cart",
+      "url": "/cart",
+      "description": "View your cart"
+    }
+  ]
+}
