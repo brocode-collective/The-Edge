@@ -1,11 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { FoodCard } from "@/components/shop/FoodCard";
-import { ShopCard } from "@/components/shop/ShopCard";
 import { mockCategories } from "@/lib/mockData";
 import { dietaryFilters } from "@/lib/designSystem";
 import { useMenuItems, useShops } from "@/lib/supabase/hooks";
@@ -15,7 +14,9 @@ export default function BrowsePage() {
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [activeDiet, setActiveDiet] = useState<string | null>(null);
   const [activeShop, setActiveShop] = useState<string | null>(null);
-  const [view, setView] = useState<"food" | "shops">("food");
+  const [shopOpen, setShopOpen] = useState(false);
+  const [catOpen, setCatOpen] = useState(false);
+  const [tagsOpen, setTagsOpen] = useState(false);
   const { data: shops = [] } = useShops();
   const { data: items = [] } = useMenuItems();
   const shopNames = useMemo(
@@ -40,30 +41,10 @@ export default function BrowsePage() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <div className="label-mono mb-2">● Browse</div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">Browse Menu</h1>
           <p className="text-muted-foreground">Discover the best food on campus.</p>
         </div>
 
-        {/* View toggle */}
-        <div className="inline-flex rounded-full bg-secondary p-1 text-sm font-medium mb-6">
-          <button
-            id="view-food"
-            onClick={() => setView("food")}
-            className={`pill px-5 py-2 transition-smooth ${view === "food" ? "bg-background shadow-soft" : "text-muted-foreground"}`}
-          >
-            Food items
-          </button>
-          <button
-            id="view-shops"
-            onClick={() => setView("shops")}
-            className={`pill px-5 py-2 transition-smooth ${view === "shops" ? "bg-background shadow-soft" : "text-muted-foreground"}`}
-          >
-            Shops
-          </button>
-        </div>
-
-        {view === "food" ? (
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar filters */}
             <aside className="w-full md:w-64 shrink-0 space-y-8">
@@ -79,32 +60,16 @@ export default function BrowsePage() {
                 />
               </div>
 
-              {/* Categories */}
-              <div>
-                <h3 className="label-mono mb-4">Categories</h3>
-                <div className="flex flex-col gap-1">
-                  {mockCategories.map((c) => (
-                    <button
-                      key={c.id}
-                      id={`browse-cat-${c.id}`}
-                      onClick={() => setActiveCat(activeCat === c.label ? null : c.label)}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-smooth focus-dashed ${
-                        activeCat === c.label
-                          ? "bg-foreground text-background"
-                          : "hover:bg-secondary text-foreground"
-                      }`}
-                    >
-                      <span>{c.emoji}</span>
-                      <span className="font-medium">{c.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Shops filter */}
               <div>
-                <h3 className="label-mono mb-4">Shop</h3>
-                <div className="flex flex-col gap-1">
+                <button 
+                  onClick={() => setShopOpen(!shopOpen)}
+                  className="flex w-full items-center justify-between mb-4 md:pointer-events-none"
+                >
+                  <h3 className="label-mono mb-0">Shop</h3>
+                  <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${shopOpen ? "rotate-180" : ""}`} />
+                </button>
+                <div className={`flex-col gap-1 ${shopOpen ? "flex" : "hidden md:flex"}`}>
                   {shops.map((s) => (
                     <button
                       key={s.id}
@@ -123,10 +88,44 @@ export default function BrowsePage() {
                 </div>
               </div>
 
+              {/* Categories */}
+              <div>
+                <button 
+                  onClick={() => setCatOpen(!catOpen)}
+                  className="flex w-full items-center justify-between mb-4 md:pointer-events-none"
+                >
+                  <h3 className="label-mono mb-0">Categories</h3>
+                  <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${catOpen ? "rotate-180" : ""}`} />
+                </button>
+                <div className={`flex-col gap-1 ${catOpen ? "flex" : "hidden md:flex"}`}>
+                  {mockCategories.map((c) => (
+                    <button
+                      key={c.id}
+                      id={`browse-cat-${c.id}`}
+                      onClick={() => setActiveCat(activeCat === c.label ? null : c.label)}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-smooth focus-dashed ${
+                        activeCat === c.label
+                          ? "bg-foreground text-background"
+                          : "hover:bg-secondary text-foreground"
+                      }`}
+                    >
+                      <span>{c.emoji}</span>
+                      <span className="font-medium">{c.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Dietary filters */}
               <div>
-                <h3 className="label-mono mb-4">Dietary</h3>
-                <div className="flex flex-wrap gap-2">
+                <button 
+                  onClick={() => setTagsOpen(!tagsOpen)}
+                  className="flex w-full items-center justify-between mb-4 md:pointer-events-none"
+                >
+                  <h3 className="label-mono mb-0">Tags</h3>
+                  <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${tagsOpen ? "rotate-180" : ""}`} />
+                </button>
+                <div className={`flex-wrap gap-2 ${tagsOpen ? "flex" : "hidden md:flex"}`}>
                   {dietaryFilters.map((d) => (
                     <button
                       key={d}
@@ -177,16 +176,6 @@ export default function BrowsePage() {
               )}
             </div>
           </div>
-        ) : (
-          /* Shop cards grid */
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {shops.map((s) => (
-              <div key={s.id} className="w-full">
-                <ShopCard shop={s} />
-              </div>
-            ))}
-          </div>
-        )}
       </main>
 
       <Footer />
