@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PWABanner } from "@/components/layout/PWABanner";
@@ -16,6 +17,7 @@ export default function HomePage() {
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [activeDiet, setActiveDiet] = useState<string | null>(null);
+  const router = useRouter();
   const { data: shops = [] } = useShops();
   const { data: items = [] } = useMenuItems();
   const shopNames = useMemo(
@@ -64,12 +66,6 @@ export default function HomePage() {
                 >
                   Start Ordering <ArrowRight className="w-4 h-4" />
                 </Link>
-                <a
-                  href="#shops"
-                  className="pill border border-border px-6 py-3.5 font-medium hover:bg-secondary transition-smooth focus-dashed"
-                >
-                  Browse Shops
-                </a>
               </div>
 
               <div className="mt-8 flex items-center gap-4 text-xs text-muted-foreground">
@@ -114,6 +110,11 @@ export default function HomePage() {
             id="home-search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && query.trim()) {
+                router.push(`/browse?q=${encodeURIComponent(query.trim())}`);
+              }
+            }}
             placeholder="Search food, drinks, or shops…"
             className="w-full pl-12 pr-5 py-4 rounded-full bg-secondary border border-transparent focus:border-primary focus:bg-background transition-smooth focus-dashed text-sm placeholder:text-muted-foreground outline-none"
           />
@@ -141,7 +142,7 @@ export default function HomePage() {
       {/* ── CATEGORIES ── */}
       <section className="container mx-auto px-4 py-6">
         <div className="label-mono mb-4">● 02 / Categories</div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="flex gap-3 overflow-x-auto snap-x scrollbar-hide -mx-4 px-4 pb-2">
           {mockCategories.map((c) => {
             const active = activeCat === c.label;
             return (
@@ -149,7 +150,7 @@ export default function HomePage() {
                 key={c.id}
                 id={`category-${c.id}`}
                 onClick={() => setActiveCat(active ? null : c.label)}
-                className={`rounded-3xl border p-5 text-left transition-smooth focus-dashed ${
+                className={`flex-shrink-0 w-[140px] snap-start rounded-3xl border p-5 text-left transition-smooth focus-dashed ${
                   active
                     ? "bg-foreground text-background border-foreground shadow-pop"
                     : "bg-card border-border hover:border-foreground/30"
@@ -202,7 +203,7 @@ export default function HomePage() {
             ● Results ({filtered.length} item{filtered.length !== 1 ? "s" : ""})
           </div>
         )}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
           {filtered.map((i) => (
             <FoodCard key={i.id} item={i} shopName={shopNames.get(i.shopId)} />
           ))}
@@ -219,7 +220,7 @@ export default function HomePage() {
         <section className="container mx-auto px-4 py-10">
           <div className="label-mono mb-3">● 03 / On the rise</div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-6">Most ordered today</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
             {popular.map((i) => (
               <FoodCard key={i.id} item={i} shopName={shopNames.get(i.shopId)} />
             ))}

@@ -64,40 +64,18 @@ export const FoodCard = ({ item, compact = false, shopName }: FoodCardProps) => 
 
       {/* Content */}
       <div className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="font-semibold tracking-tight truncate">{item.title}</h3>
-            {!compact && (shopName || shop) && (
-              <p className="text-xs text-muted-foreground mt-0.5 truncate">{shopName ?? shop?.name}</p>
-            )}
-          </div>
-          <div className="text-right shrink-0">
-            <div className="font-mono font-semibold">Rs {item.price}</div>
-            {item.discount && (
-              <div className="text-[10px] text-success font-medium">
-                -{item.discount}% off
-              </div>
-            )}
-          </div>
+        <div className="min-w-0 mb-3">
+          <h3 className="font-bold text tracking-tight truncate leading-tight">{item.title}</h3>
+          {(shopName || shop) && (
+            <p className="text-sm text-muted-foreground mt-0.5 truncate">{shopName ?? shop?.name}</p>
+          )}
         </div>
 
-        {!compact && (
-          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-            {item.description}
-          </p>
-        )}
-
-        <div className="flex items-center justify-between gap-3 mt-4">
-          <div className="flex flex-wrap gap-1.5">
-            {item.dietaryTags.slice(0, 2).map((t) => (
-              <span
-                key={t}
-                className="text-[10px] font-medium uppercase tracking-wider px-2 py-1 rounded-full bg-accent text-accent-foreground"
-              >
-                {t}
-              </span>
-            ))}
+        <div className="flex items-center justify-between">
+          <div className="font-bold text-xl tracking-tight">
+            Rs {item.price.toFixed(0)}
           </div>
+          
           <button
             id={`add-to-cart-${item.id}`}
             onClick={() => {
@@ -106,9 +84,9 @@ export const FoodCard = ({ item, compact = false, shopName }: FoodCardProps) => 
               toast.success(`${item.title} added to cart`);
             }}
             disabled={!item.isAvailable}
-            className="inline-flex items-center gap-1.5 pill bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary-glow transition-smooth focus-dashed disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-10 h-10 rounded-full bg-[#D4FF00] text-black grid place-items-center hover:scale-105 transition-smooth shadow-sm focus-dashed disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
-            <Plus className="w-4 h-4" /> Add
+            <Plus className="w-6 h-6 stroke-[3px]" />
           </button>
         </div>
       </div>

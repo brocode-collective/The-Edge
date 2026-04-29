@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Search, ChevronDown } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -10,13 +11,31 @@ import { dietaryFilters } from "@/lib/designSystem";
 import { useMenuItems, useShops } from "@/lib/supabase/hooks";
 
 export default function BrowsePage() {
-  const [query, setQuery] = useState("");
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BrowseContent />
+    </Suspense>
+  );
+}
+
+function BrowseContent() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
+  const [query, setQuery] = useState(initialQuery);
+
+  useEffect(() => {
+    if (initialQuery) setQuery(initialQuery);
+  }, [initialQuery]);
+
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [activeDiet, setActiveDiet] = useState<string | null>(null);
   const [activeShop, setActiveShop] = useState<string | null>(null);
   const [shopOpen, setShopOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
   const [tagsOpen, setTagsOpen] = useState(false);
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const { data: shops = [] } = useShops();
   const { data: items = [] } = useMenuItems();
   const shopNames = useMemo(
@@ -32,7 +51,11 @@ export default function BrowsePage() {
     const matchC = activeCat ? i.category === activeCat : true;
     const matchD = activeDiet ? i.dietaryTags.includes(activeDiet) : true;
     const matchS = activeShop ? i.shopId === activeShop : true;
-    return matchQ && matchC && matchD && matchS;
+    const min = parseFloat(minPrice);
+    const max = parseFloat(maxPrice);
+    const matchMin = !isNaN(min) ? i.price >= min : true;
+    const matchMax = !isNaN(max) ? i.price <= max : true;
+    return matchQ && matchC && matchD && matchS && matchMin && matchMax;
   });
 
   return (
@@ -143,14 +166,46 @@ export default function BrowsePage() {
                 </div>
               </div>
 
+              {/* Price filter */}
+              <div>
+                <button 
+                  onClick={() => setPriceOpen(!priceOpen)}
+                  className="flex w-full items-center justify-between mb-4 md:pointer-events-none"
+                >
+                  <h3 className="label-mono mb-0">Price</h3>
+                  <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${priceOpen ? "rotate-180" : ""}`} />
+                </button>
+                <div className={`flex-col gap-3 ${priceOpen ? "flex" : "hidden md:flex"}`}>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-secondary border border-transparent focus:border-primary focus:bg-background transition-smooth outline-none text-sm focus-dashed"
+                    />
+                    <span className="text-muted-foreground">-</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-secondary border border-transparent focus:border-primary focus:bg-background transition-smooth outline-none text-sm focus-dashed"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Clear */}
-              {(query || activeCat || activeDiet || activeShop) && (
+              {(query || activeCat || activeDiet || activeShop || minPrice || maxPrice) && (
                 <button
                   onClick={() => {
                     setQuery("");
                     setActiveCat(null);
                     setActiveDiet(null);
                     setActiveShop(null);
+                    setMinPrice("");
+                    setMaxPrice("");
                   }}
                   className="w-full pill border border-border py-2 text-sm text-muted-foreground hover:bg-secondary transition-smooth focus-dashed"
                 >
@@ -164,7 +219,7 @@ export default function BrowsePage() {
               <div className="text-sm text-muted-foreground mb-4">
                 {filtered.length} item{filtered.length !== 1 ? "s" : ""} found
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
                 {filtered.map((i) => (
                   <FoodCard key={i.id} item={i} shopName={shopNames.get(i.shopId)} />
                 ))}

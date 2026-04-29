@@ -136,7 +136,7 @@ export default function ShopPage() {
         )}
 
         {/* Menu grid */}
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-5">
           {visible.map((i) => (
             <FoodCard key={i.id} item={i} compact />
           ))}
