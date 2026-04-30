@@ -215,4 +215,11 @@
   .shadow-soft { box-shadow: var(--edge-shadow-soft); }
   .shadow-elevated { box-shadow: var(--edge-shadow-elevated); }
   .shadow-pop { box-shadow: var(--edge-shadow-pop); }
+  
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
 }

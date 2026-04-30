@@ -1,0 +1,73 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, Compass, ShoppingBag, ReceiptText, User } from "lucide-react";
+import { useCart } from "@/store/cart";
+import { motion } from "framer-motion";
+
+export const BottomNav = () => {
+  const pathname = usePathname();
+  const count = useCart((s) => s.count());
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const navLinks = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/browse", label: "Browse", icon: Compass },
+    { href: "/cart", label: "Cart", icon: ShoppingBag, badge: true },
+    { href: "/orders", label: "Orders", icon: ReceiptText },
+    { href: "/profile", label: "Profile", icon: User },
+  ];
+
+  return (
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-t border-border/50 pb-safe">
+      <div className="flex items-center justify-evenly h-16 w-full px-2">
+        {navLinks.map((link) => {
+          const isActive = pathname === link.href;
+          const Icon = link.icon;
+
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="relative flex flex-col items-center justify-center w-full h-full gap-1 transition-smooth active:scale-95"
+            >
+              <div className="relative">
+                <Icon
+                  className={`w-5 h-5 transition-colors ${
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  }`}
+                  strokeWidth={isActive ? 2.5 : 2}
+                />
+                {link.badge && mounted && count > 0 && (
+                  <span className="absolute -top-2 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground animate-scale-in">
+                    {count}
+                  </span>
+                )}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute -inset-2 bg-primary/10 rounded-xl -z-10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </div>
+              <span
+                className={`text-[10px] font-medium transition-colors ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                {link.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+};

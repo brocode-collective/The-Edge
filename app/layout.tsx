@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ServiceWorkerRegister } from "@/components/layout/ServiceWorkerRegister";
+import { BottomNav } from "@/components/layout/BottomNav";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -67,7 +68,12 @@ export default function RootLayout({
       <body className="antialiased font-sans">
         <Providers>
           <ServiceWorkerRegister />
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <div className="flex-1 pb-20 md:pb-0">
+              {children}
+            </div>
+            <BottomNav />
+          </div>
         </Providers>
       </body>
     </html>
