@@ -84,9 +84,9 @@ export const FoodCard = ({ item, compact = false, shopName }: FoodCardProps) => 
               toast.success(`${item.title} added to cart`);
             }}
             disabled={!item.isAvailable}
-            className="w-10 h-10 rounded-full bg-[#D4FF00] text-black grid place-items-center hover:scale-105 transition-smooth shadow-sm focus-dashed disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-[#D4FF00] text-black grid place-items-center hover:scale-105 transition-smooth shadow-sm focus-dashed disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
-            <Plus className="w-6 h-6 stroke-[3px]" />
+            <Plus className="w-6 h-6 md:w-5 md:h-5 stroke-[3px]" />
           </button>
         </div>
       </div>

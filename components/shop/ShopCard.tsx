@@ -56,7 +56,7 @@ export const ShopCard = ({ shop }: ShopCardProps) => (
   <Link
     href={`/shop/${shop.slug}`}
     id={`shop-card-${shop.id}`}
-    className="group flex-shrink-0 w-[260px] h-[200px] flex flex-col justify-between snap-start rounded-3xl border border-border bg-card p-5 hover:shadow-elevated transition-smooth focus-dashed"
+    className="group flex-shrink-0 h-[200px] flex flex-col justify-between snap-start rounded-3xl border border-border bg-card p-5 hover:shadow-elevated transition-smooth focus-dashed"
   >
     <div>
       <div className="flex items-start justify-between mb-3">

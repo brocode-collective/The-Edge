@@ -35,7 +35,6 @@ export default function OrdersPage() {
 
       <main className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-8">
-          <div className="label-mono mb-2">● History</div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">Order History</h1>
           <p className="text-muted-foreground">Track your current and past campus orders.</p>
         </div>

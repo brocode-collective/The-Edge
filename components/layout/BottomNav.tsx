@@ -39,8 +39,8 @@ export const BottomNav = () => {
             >
               <div className="relative">
                 <Icon
-                  className={`w-5 h-5 transition-colors ${
-                    isActive ? "text-primary" : "text-muted-foreground"
+                  className={`w-5 h-5 transition-all ${
+                    isActive ? "text-primary drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "text-muted-foreground"
                   }`}
                   strokeWidth={isActive ? 2.5 : 2}
                 />
@@ -49,17 +49,10 @@ export const BottomNav = () => {
                     {count}
                   </span>
                 )}
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute -inset-2 bg-primary/10 rounded-xl -z-10"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
               </div>
               <span
-                className={`text-[10px] font-medium transition-colors ${
-                  isActive ? "text-primary" : "text-muted-foreground"
+                className={`text-[10px] font-medium transition-all ${
+                  isActive ? "text-primary drop-shadow-[0_0_5px_rgba(59,130,246,0.3)]" : "text-muted-foreground"
                 }`}
               >
                 {link.label}
