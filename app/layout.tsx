@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { ServiceWorkerRegister } from "@/components/layout/ServiceWorkerRegister";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -74,6 +75,7 @@ export default function RootLayout({
             </div>
             <BottomNav />
           </div>
+          <Analytics />
         </Providers>
       </body>
     </html>

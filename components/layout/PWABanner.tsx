@@ -1,15 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Smartphone, X } from "lucide-react";
 
 export const PWABanner = () => {
   const [dismissed, setDismissed] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(true); // Default to true to prevent hydration flash
 
-  if (dismissed) return null;
+  useEffect(() => {
+    // Check if the app is already installed/running as a standalone PWA
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || 
+      ("standalone" in navigator && (navigator as any).standalone === true);
+
+    if (isStandalone) {
+      setIsInstalled(true);
+      return;
+    }
+
+    setIsInstalled(false);
+
+    // Auto-hide after 10 seconds
+    const timeout = setTimeout(() => {
+      setClosing(true);
+      setTimeout(() => setDismissed(true), 300); // Wait for transition
+    }, 10000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  const handleDismiss = () => {
+    setClosing(true);
+    setTimeout(() => setDismissed(true), 300);
+  };
+
+  if (isInstalled || dismissed) return null;
 
   return (
-    <div className="fixed bottom-20 md:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-[340px] z-50 animate-slide-in-right">
+    <div 
+      className={`fixed bottom-20 md:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-[340px] z-50 animate-slide-in-right transition-all duration-300 ${closing ? "opacity-0 translate-x-8" : "opacity-100"}`}
+    >
       <div className="bg-card border border-border rounded-3xl p-4 shadow-elevated flex items-start gap-3">
         <div className="w-10 h-10 rounded-2xl hero-gradient grid place-items-center text-white shrink-0">
           <Smartphone className="w-5 h-5" />
@@ -21,7 +51,7 @@ export const PWABanner = () => {
           </p>
         </div>
         <button
-          onClick={() => setDismissed(true)}
+          onClick={handleDismiss}
           className="w-7 h-7 rounded-full grid place-items-center hover:bg-secondary transition-smooth focus-dashed shrink-0"
           aria-label="Dismiss"
         >
