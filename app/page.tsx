@@ -82,7 +82,7 @@ export default function HomePage() {
                 ))}
               </div>
               <span>
-                <span className="font-semibold text-foreground">{shops.length > 0 ? shops.length : 5} vendors</span> serving the campus today
+                <span className="font-semibold text-foreground">{shops.length > 0 ? shops.length : 5} vendors</span> serving the campus
               </span>
             </div>
           </div>

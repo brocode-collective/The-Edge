@@ -2,17 +2,24 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Clock, ArrowLeft } from "lucide-react";
+import { Lock, Clock } from "lucide-react";
 import { toast } from "sonner";
-import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/store/cart";
-import { shopById } from "@/lib/mockData";
+import { useProfile } from "@/store/profile";
+import {
+  shopById,
+  getNextOrderCode,
+  generateReferenceNumber,
+  formatOrderTime,
+  type PerShopOrder,
+} from "@/lib/mockData";
 
 const pickupSlots = ["ASAP", "+15 min", "+30 min", "+1 hr", "+2 hr", "Scheduled"];
 
 export default function CheckoutPage() {
   const { total, items, clear, groupedByShop } = useCart();
+  const { name: customerName } = useProfile();
   const [slot, setSlot] = useState("ASAP");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,45 +34,72 @@ export default function CheckoutPage() {
     // TODO: Replace with real payment gateway integration (per-shop payment links)
     // TODO: Replace with Supabase order creation — INSERT INTO orders
     setTimeout(() => {
-      const code = Array.from(
-        { length: 4 },
-        () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 31)]
-      ).join("");
-      const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
+      const now = new Date();
+      const orderTime = formatOrderTime(now);
+      const perShopOrders: PerShopOrder[] = [];
 
-      const order = {
-        id: orderId,
-        code,
-        items: useCart.getState().items,
-        total: useCart.getState().total(),
-        slot,
-        note,
-        placedAt: Date.now(),
-        status: "new",
-      };
+      for (const [shopId, list] of groupedByShop().entries()) {
+        const shop = shopById(shopId);
+        if (!shop) continue;
+
+        const orderCode = getNextOrderCode();
+        const referenceNumber = generateReferenceNumber(shop.letterCode, orderCode);
+        const sub = list.reduce((n, c) => n + c.qty * c.item.price, 0);
+
+        const perShopOrder: PerShopOrder = {
+          id: `ORD-${Date.now().toString(36).toUpperCase()}-${shopId}`,
+          orderCode,
+          referenceNumber,
+          shopId: shop.id,
+          shopName: shop.name,
+          shopEmoji: shop.emoji,
+          shopBanner: shop.banner,
+          customerName: customerName || "Guest",
+          items: list.map((c) => ({
+            item: c.item,
+            qty: c.qty,
+            notes: c.notes,
+            dining: c.dining,
+          })),
+          total: sub,
+          orderTime,
+          status: "new",
+          placedAt: now.toISOString(),
+          slot,
+          note: note || undefined,
+        };
+
+        perShopOrders.push(perShopOrder);
+      }
 
       // TODO: Store in Supabase — for now use localStorage
       try {
-        const existing = JSON.parse(localStorage.getItem("edge-orders") || "[]");
-        localStorage.setItem("edge-orders", JSON.stringify([...existing, order]));
-        localStorage.setItem("edge-last-order", JSON.stringify(order));
+        const existing: PerShopOrder[] = JSON.parse(
+          localStorage.getItem("edge-orders") || "[]"
+        );
+        localStorage.setItem(
+          "edge-orders",
+          JSON.stringify([...perShopOrders, ...existing])
+        );
+        localStorage.setItem(
+          "edge-last-orders",
+          JSON.stringify(perShopOrders)
+        );
       } catch {}
 
       clear();
       toast.success("Payment confirmed! Your order is being prepared.");
-      router.push(`/order/${code}`);
+
+      // Navigate to the first order's detail page
+      if (perShopOrders.length > 0) {
+        router.push(`/order/${perShopOrders[0].orderCode}`);
+      }
     }, 1500);
   };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 md:pt-28 max-w-2xl">
-        <Link
-          href="/cart"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground focus-dashed transition-smooth mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to cart
-        </Link>
 
         <div className="label-mono mb-2">● Checkout</div>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Almost there</h1>
