@@ -113,9 +113,9 @@ export default function HomePage() {
         <div className="mb-6">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Today&apos;s shops</h2>
         </div>
-        <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide px-4 -mx-4 pt-2 pb-8">
-          {shops.map((s) => (
-            <div key={s.id} className="w-[260px] shrink-0 snap-start">
+        <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide -mx-4 pt-2 pb-8 scroll-pl-4 scroll-pr-4">
+          {shops.map((s, index) => (
+            <div key={s.id} className={`w-[260px] shrink-0 snap-start ${index === 0 ? 'ml-4' : ''} ${index === shops.length - 1 ? 'mr-4' : ''}`}>
               <ShopCard shop={s} />
             </div>
           ))}
@@ -136,10 +136,10 @@ export default function HomePage() {
               View all
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide px-4 -mx-4 pt-2 pb-8">
-            {favouriteItems.map((i) => (
-              <div key={i.id} className="w-[200px] md:w-[240px] shrink-0 snap-start">
-                <FoodCard item={i} shopName={shopNames.get(i.shopId)} />
+          <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide -mx-4 pt-2 pb-8 scroll-pl-4 scroll-pr-4">
+            {favouriteItems.map((item, index) => (
+              <div key={item.id} className={`w-[200px] md:w-[240px] shrink-0 snap-start ${index === 0 ? 'ml-4' : ''} ${index === favouriteItems.length - 1 ? 'mr-4' : ''}`}>
+                <FoodCard item={item} shopName={shopNames.get(item.shopId)} />
               </div>
             ))}
           </div>
@@ -150,11 +150,11 @@ export default function HomePage() {
       {mostOrdered.length > 0 && (
         <section className="container mx-auto px-4 py-8">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6">Most ordered today</h2>
-          
-          <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide px-4 -mx-4 pt-2 pb-8">
-            {mostOrdered.map((i) => (
-              <div key={i.id} className="w-[200px] md:w-[240px] shrink-0 snap-start">
-                <FoodCard item={i} shopName={shopNames.get(i.shopId)} />
+
+          <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide -mx-4 pt-2 pb-8 scroll-pl-4 scroll-pr-4">
+            {mostOrdered.map((item, index) => (
+              <div key={item.id} className={`w-[200px] md:w-[240px] shrink-0 snap-start ${index === 0 ? 'ml-4' : ''} ${index === mostOrdered.length - 1 ? 'mr-4' : ''}`}>
+                <FoodCard item={item} shopName={shopNames.get(item.shopId)} />
               </div>
             ))}
           </div>
@@ -165,10 +165,10 @@ export default function HomePage() {
       {recentlyOrdered.length > 0 && (
         <section className="container mx-auto px-4 py-8 mb-10">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6">Recently ordered</h2>
-          <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide px-4 -mx-4 pt-2 pb-8">
-            {recentlyOrdered.map((i) => (
-              <div key={i.id} className="w-[200px] md:w-[240px] shrink-0 snap-start">
-                <FoodCard item={i} shopName={shopNames.get(i.shopId)} />
+          <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide -mx-4 pt-2 pb-8 scroll-pl-4 scroll-pr-4">
+            {recentlyOrdered.map((item, index) => (
+              <div key={item.id} className={`w-[200px] md:w-[240px] shrink-0 snap-start ${index === 0 ? 'ml-4' : ''} ${index === recentlyOrdered.length - 1 ? 'mr-4' : ''}`}>
+                <FoodCard item={item} shopName={shopNames.get(item.shopId)} />
               </div>
             ))}
           </div>
