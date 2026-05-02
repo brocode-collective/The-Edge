@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Clock, Star, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { FoodCard } from "@/components/shop/FoodCard";
 import { useCart } from "@/store/cart";
@@ -60,14 +60,6 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        {/* Back */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground focus-dashed transition-smooth"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back
-        </Link>
-
         {/* Shop header */}
         <div className="mt-6 flex items-start gap-5">
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-secondary grid place-items-center text-5xl shrink-0 shadow-soft">
@@ -90,15 +82,7 @@ export default function ShopPage() {
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-2xl">
               {shop.description}
             </p>
-            <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" /> {shop.prepTime} avg
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 fill-warning text-warning" /> {shop.rating}
-              </span>
-              <span>{shop.reviewCount} reviews</span>
-            </div>
+
             {shop.closedNote && (
               <div className="mt-4 rounded-2xl bg-accent text-accent-foreground px-4 py-3 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
