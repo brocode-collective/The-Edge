@@ -15,6 +15,16 @@ export function SupabaseSyncProvider({ children }: { children: React.ReactNode }
   const supabase = getSupabaseBrowserClient();
   const { setUserId, setItems, setFavorites, items: localItems, favorites: localFavs, userId } = useCart();
   const isInitialSyncRef = useRef(false);
+  const localItemsRef = useRef(localItems);
+  const localFavsRef = useRef(localFavs);
+
+  useEffect(() => {
+    localItemsRef.current = localItems;
+  }, [localItems]);
+
+  useEffect(() => {
+    localFavsRef.current = localFavs;
+  }, [localFavs]);
 
   // Fetch all menu items for mapping server IDs back to full objects
   const { data: allMenuItems } = useQuery({
@@ -50,16 +60,14 @@ export function SupabaseSyncProvider({ children }: { children: React.ReactNode }
               fetchServerFavorites(user.id)
             ]);
 
-            // Merge Favorites
-            const mergedFavs = Array.from(new Set([...localFavs, ...serverFavs]));
+            // Merge Favorites using ref
+            const mergedFavs = Array.from(new Set([...localFavsRef.current, ...serverFavs]));
             setFavorites(mergedFavs);
 
-            // Merge Cart
-            // Strategy: If local has items, push them to server. 
-            // If local is empty, pull from server.
-            if (localItems.length > 0) {
+            // Merge Cart using ref
+            if (localItemsRef.current.length > 0) {
               // Push local to server
-              for (const item of localItems) {
+              for (const item of localItemsRef.current) {
                 await upsertServerCartItem(user.id, {
                   menu_item_id: item.item.id,
                   shop_id: item.item.shopId,
@@ -114,7 +122,7 @@ export function SupabaseSyncProvider({ children }: { children: React.ReactNode }
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase, setUserId, setItems, setFavorites, allMenuItems, localItems, localFavs]);
+  }, [supabase, setUserId, setItems, setFavorites, allMenuItems]);
 
   // Listen for realtime cart updates from other tabs/devices
   useEffect(() => {
@@ -148,7 +156,7 @@ export function SupabaseSyncProvider({ children }: { children: React.ReactNode }
             
             // Only update if different to avoid loops
             // (Simple length check for now, can be more robust)
-            if (mappedItems.length !== localItems.length) {
+            if (mappedItems.length !== localItemsRef.current.length) {
               setItems(mappedItems);
             }
           }
@@ -159,7 +167,7 @@ export function SupabaseSyncProvider({ children }: { children: React.ReactNode }
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, userId, setItems, allMenuItems, localItems.length]);
+  }, [supabase, userId, setItems, allMenuItems]);
 
   return <>{children}</>;
 }
