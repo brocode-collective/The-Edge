@@ -4,7 +4,6 @@ import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { useState, useEffect } from "react";
-import { SupabaseSyncProvider } from "@/components/providers/supabase-sync-provider";
 // TODO: Replace with real PostHog key from environment variable
 // import posthog from "posthog-js";
 // import { PostHogProvider } from "posthog-js/react";
@@ -40,9 +39,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
       >
         {/* TODO: Wrap with PostHogProvider once real key is set */}
-        <SupabaseSyncProvider>
-          {children}
-        </SupabaseSyncProvider>
+        {children}
         <Toaster
           richColors
           position={position}

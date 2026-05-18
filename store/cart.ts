@@ -1,14 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { MenuItem } from "@/lib/mockData";
-import { 
-  upsertServerCartItem, 
-  removeServerCartItem, 
-  clearServerCart, 
-  addServerFavorite, 
-  removeServerFavorite,
-  clearServerCartForShop
-} from "@/lib/supabase/data";
 
 export type CartEntry = {
   item: MenuItem;
@@ -22,10 +14,6 @@ type CartState = {
   items: CartEntry[];
   favorites: string[];
   recentlyViewed: string[];
-  userId: string | null;
-  
-  // Set userId for sync logic
-  setUserId: (id: string | null) => void;
   
   // Cart Actions
   add: (
@@ -40,10 +28,6 @@ type CartState = {
   setScheduledSlot: (itemId: string, slot: string) => void;
   clear: () => void;
   clearShop: (shopId: string) => void;
-  
-  // Bulk Actions (for sync)
-  setItems: (items: CartEntry[]) => void;
-  setFavorites: (favs: string[]) => void;
 
   // Favorites Actions
   toggleFav: (itemId: string) => void;
@@ -63,9 +47,6 @@ export const useCart = create<CartState>()(
       items: [],
       favorites: [],
       recentlyViewed: [],
-      userId: null,
-
-      setUserId: (id) => set({ userId: id }),
 
       add: (item, qty = 1, opts) => {
         const state = get();
@@ -98,28 +79,11 @@ export const useCart = create<CartState>()(
         }
         
         set({ items: newItems });
-        
-        // Sync with Supabase if logged in
-        if (state.userId) {
-          const updated = newItems.find(i => i.item.id === item.id)!;
-          upsertServerCartItem(state.userId, {
-            menu_item_id: item.id,
-            shop_id: item.shopId,
-            quantity: updated.qty,
-            notes: updated.notes,
-            dining: updated.dining,
-            scheduled_slot: updated.scheduledSlot
-          }).catch(console.error);
-        }
       },
 
       remove: (id) => {
         const state = get();
         set({ items: state.items.filter((c) => c.item.id !== id) });
-        
-        if (state.userId) {
-          removeServerCartItem(state.userId, id).catch(console.error);
-        }
       },
 
       setQty: (id, qty) => {
@@ -129,96 +93,34 @@ export const useCart = create<CartState>()(
           : state.items.map((c) => (c.item.id === id ? { ...c, qty } : c));
         
         set({ items: newItems });
-        
-        if (state.userId) {
-          if (qty <= 0) {
-            removeServerCartItem(state.userId, id).catch(console.error);
-          } else {
-            const item = newItems.find(i => i.item.id === id)!;
-            upsertServerCartItem(state.userId, {
-              menu_item_id: id,
-              shop_id: item.item.shopId,
-              quantity: qty,
-              notes: item.notes,
-              dining: item.dining,
-              scheduled_slot: item.scheduledSlot
-            }).catch(console.error);
-          }
-        }
       },
 
       setNotes: (id, notes) => {
         const state = get();
         const newItems = state.items.map((c) => (c.item.id === id ? { ...c, notes } : c));
         set({ items: newItems });
-        
-        if (state.userId) {
-          const item = newItems.find(i => i.item.id === id)!;
-          upsertServerCartItem(state.userId, {
-            menu_item_id: id,
-            shop_id: item.item.shopId,
-            quantity: item.qty,
-            notes,
-            dining: item.dining,
-            scheduled_slot: item.scheduledSlot
-          }).catch(console.error);
-        }
       },
 
       setDining: (id, dining) => {
         const state = get();
         const newItems = state.items.map((c) => (c.item.id === id ? { ...c, dining } : c));
         set({ items: newItems });
-        
-        if (state.userId) {
-          const item = newItems.find(i => i.item.id === id)!;
-          upsertServerCartItem(state.userId, {
-            menu_item_id: id,
-            shop_id: item.item.shopId,
-            quantity: item.qty,
-            notes: item.notes,
-            dining,
-            scheduled_slot: item.scheduledSlot
-          }).catch(console.error);
-        }
       },
 
       setScheduledSlot: (id, slot) => {
         const state = get();
         const newItems = state.items.map((c) => (c.item.id === id ? { ...c, scheduledSlot: slot } : c));
         set({ items: newItems });
-        
-        if (state.userId) {
-          const item = newItems.find(i => i.item.id === id)!;
-          upsertServerCartItem(state.userId, {
-            menu_item_id: id,
-            shop_id: item.item.shopId,
-            quantity: item.qty,
-            notes: item.notes,
-            dining: item.dining,
-            scheduled_slot: slot
-          }).catch(console.error);
-        }
       },
 
       clear: () => {
-        const state = get();
         set({ items: [] });
-        if (state.userId) {
-          clearServerCart(state.userId).catch(console.error);
-        }
       },
 
       clearShop: (shopId) => {
         const state = get();
         set({ items: state.items.filter(i => i.item.shopId !== shopId) });
-        if (state.userId) {
-          clearServerCartForShop(state.userId, shopId).catch(console.error);
-        }
       },
-
-      setItems: (items) => set({ items }),
-      setFavorites: (favorites) => set({ favorites }),
 
       toggleFav: (id) => {
         const state = get();
@@ -228,14 +130,6 @@ export const useCart = create<CartState>()(
           : [...state.favorites, id];
         
         set({ favorites: newFavs });
-        
-        if (state.userId) {
-          if (isFav) {
-            removeServerFavorite(state.userId, id).catch(console.error);
-          } else {
-            addServerFavorite(state.userId, id).catch(console.error);
-          }
-        }
       },
 
       addRecentlyViewed: (shopId) =>
@@ -262,3 +156,4 @@ export const useCart = create<CartState>()(
     { name: "edge-cart-v3" } // Bumped version for schema change
   )
 );
+

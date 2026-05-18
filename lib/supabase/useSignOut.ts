@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { useCart } from "@/store/cart";
 
 export function useSignOut(redirectTo = "/auth") {
   const router = useRouter();
@@ -20,7 +19,6 @@ export function useSignOut(redirectTo = "/auth") {
     try {
       await supabase?.auth.signOut();
     } finally {
-      useCart.getState().setUserId(null);
       queryClient.clear();
       router.replace(redirectTo);
       router.refresh();
