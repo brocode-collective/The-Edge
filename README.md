@@ -108,3 +108,13 @@ If a vendor is approved but cannot log in:
 ## Admin Notes
 - **New Vendors**: To add a vendor, manually add their email to the `auth.users` table in Supabase and associate it with a record in the `public.shops` table.
 - **Maintenance**: Use `SHOP_REGISTRATION_MAINTENANCE.md` for details on handling shop applications.
+
+
+## LICENSE
+
+Copyright (c) 2026 Your Team
+
+All rights reserved.
+
+This source code and all associated files are the exclusive property of the copyright holders.
+No permission is granted to use, copy, modify, merge, publish, distribute, sublicense, or sell this software without prior written permission from the copyright holders.
