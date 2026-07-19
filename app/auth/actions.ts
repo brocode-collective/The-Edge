@@ -2,6 +2,7 @@
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { headers } from "next/headers";
+import { randomBytes } from "crypto";
 
 export async function devAuthBypass(email: string) {
   // This is a safety check. In production, this should be disabled unless explicitly allowed.
@@ -36,7 +37,7 @@ export async function devAuthBypass(email: string) {
     result = await adminClient.auth.admin.generateLink({
       type: "signup",
       email,
-      password: Math.random().toString(36).slice(-12),
+      password: randomBytes(16).toString("hex"),
       options: { redirectTo }
     });
   }
