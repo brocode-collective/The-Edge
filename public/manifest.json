@@ -1,7 +1,7 @@
 {
   "name": "THE EDGE",
-  "short_name": "The Edge",
-  "description": "Campus food ordering PWA — order ahead, skip the queue.",
+  "short_name": "THE EDGE",
+  "description": "Skip the queue at The Edge Canteen",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -21,12 +21,12 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["food", "lifestyle", "shopping"],
+  "categories": ["food", "ordering", "shopping"],
   "shortcuts": [
     {
       "name": "Browse food",
       "url": "/browse",
-      "description": "Browse all campus menus"
+      "description": "Browse all Edge canteen menus"
     },
     {
       "name": "My cart",

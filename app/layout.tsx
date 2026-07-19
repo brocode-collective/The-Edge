@@ -21,12 +21,12 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "THE EDGE | Campus food, sorted",
+    default: "THE EDGE",
     template: "%s | THE EDGE",
   },
   description:
-    "Order ahead. Skip the queue. Pick up when ready. Campus food ordering PWA.",
-  keywords: ["campus food", "university canteen", "food ordering", "Sri Lanka", "PWA"],
+    "Skip the queue at The Edge Canteen | NSBM Green University",
+  keywords: ["The Edge", "NSBM Green University", "NSBM Edge", "NSBM", "NSBM Canteen"],
   manifest: "/manifest.json",
   icons: {
     icon: "/icons/icon-192.png",
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
     title: "THE EDGE",
   },
   openGraph: {
-    title: "THE EDGE | Campus food, sorted",
-    description: "Order ahead. Skip the queue. Pick up when ready.",
+    title: "THE EDGE",
+    description: "Skip the queue at The Edge Canteen.",
     type: "website",
     siteName: "THE EDGE",
   },
