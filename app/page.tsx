@@ -103,7 +103,10 @@ export default function HomePage() {
               }
             }}
             placeholder="Search food, drinks, or shops…"
-            className="w-full pl-12 pr-5 py-4 rounded-full bg-secondary border border-transparent focus:border-primary focus:bg-background transition-smooth focus-dashed text-sm placeholder:text-muted-foreground outline-none"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck="false"
+            className="w-full pl-12 pr-5 py-4 rounded-full bg-secondary border border-transparent focus:border-black dark:focus:border-white focus:bg-background transition-smooth focus-dashed text-sm placeholder:text-muted-foreground outline-none"
           />
         </div>
       </section>
