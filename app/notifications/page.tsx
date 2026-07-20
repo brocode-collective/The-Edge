@@ -9,6 +9,25 @@ import type { OrderStatus } from "@/lib/mockData";
 
 const notifyingStatuses = new Set<OrderStatus>(["paid", "preparing", "ready", "customer_late"]);
 
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getDateLabel(value: string) {
+  const date = new Date(value);
+  const today = startOfDay(new Date());
+  const notificationDay = startOfDay(date);
+  const diffDays = Math.round((today.getTime() - notificationDay.getTime()) / 86400000);
+
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default function NotificationsPage() {
   const { data: user } = useSupabaseUser();
   const { data: orders = [], isLoading } = useUserOrders(user?.id);
@@ -17,6 +36,20 @@ export default function NotificationsPage() {
     () => orders.filter((order) => notifyingStatuses.has(order.status)),
     [orders]
   );
+  const groupedNotifications = useMemo(() => {
+    return notifications.reduce<Array<{ label: string; orders: typeof notifications }>>((groups, order) => {
+      const label = getDateLabel(order.createdAt);
+      const existing = groups.find((group) => group.label === label);
+
+      if (existing) {
+        existing.orders.push(order);
+      } else {
+        groups.push({ label, orders: [order] });
+      }
+
+      return groups;
+    }, []);
+  }, [notifications]);
 
   if (isLoading) {
     return (
@@ -66,34 +99,43 @@ export default function NotificationsPage() {
           <p className="text-muted-foreground">Active updates from your orders.</p>
         </div>
 
-        <div className="space-y-4">
-          {notifications.map((order) => (
-            <Link
-              key={order.id}
-              href={`/order/${encodeURIComponent(order.referenceNumber)}`}
-              className="flex items-center justify-between gap-4 rounded-3xl border border-border bg-card p-5 shadow-soft transition-smooth hover:border-primary/40 focus-dashed"
-            >
-              <div className="flex items-center gap-4 min-w-0">
-                <div className="w-12 h-12 rounded-xl bg-secondary grid place-items-center shrink-0">
-                  <Clock className="w-5 h-5 text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-semibold truncate">{order.shopName}</div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    Order {order.code} is {order.status?.replace("_", " ") || "active"}
-                  </div>
-                  <div className="text-[11px] text-muted-foreground/80 mt-0.5">
-                    {new Date(order.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
+        <div className="space-y-8">
+          {groupedNotifications.map((group) => (
+            <section key={group.label} className="space-y-3">
+              <h2 className="px-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                {group.label}
+              </h2>
+              <div className="space-y-4">
+                {group.orders.map((order) => (
+                  <Link
+                    key={order.id}
+                    href={`/order/${encodeURIComponent(order.referenceNumber)}`}
+                    className="flex items-center justify-between gap-4 rounded-3xl border border-border bg-card p-5 shadow-soft transition-smooth hover:border-muted-foreground/50 focus-dashed"
+                  >
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-12 h-12 rounded-xl bg-secondary grid place-items-center shrink-0">
+                        <Clock className="w-5 h-5 text-foreground" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-semibold truncate">{order.shopName}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          Order {order.code} is {order.status?.replace("_", " ") || "active"}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground/80 mt-0.5">
+                          {new Date(order.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                  </Link>
+                ))}
               </div>
-              <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
-            </Link>
+            </section>
           ))}
         </div>
       </main>
