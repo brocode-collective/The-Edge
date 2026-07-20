@@ -89,7 +89,7 @@ export function GoogleSignInButton({
         disabled={loading}
         className="group relative flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-full border border-border bg-background px-5 text-base font-bold text-foreground shadow-[0_18px_50px_rgba(0,0,0,0.08)] transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-secondary/60 hover:shadow-[0_22px_60px_rgba(0,0,0,0.12)] active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 dark:bg-white/8 dark:hover:bg-white/12"
       >
-        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        {/* Removed green gradient hover effect */}
         <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
           <GoogleIcon />
         </span>
