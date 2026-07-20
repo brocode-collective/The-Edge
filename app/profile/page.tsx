@@ -76,7 +76,7 @@ export default function ProfilePage() {
   const progress = Math.min(100, ((profile?.totalOrders || 0) / tierInfo.next) * 100);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-background">
+    <div className="flex-1 bg-[#F8F9FA] dark:bg-background">
       <main className="container mx-auto px-4 py-8 md:pt-28 md:py-12 pb-24">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-8 lg:gap-12">
           
@@ -187,7 +187,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <div className="font-bold text-[16px]">Dark Mode</div>
-                    <div className="text-[12px] text-muted-foreground font-medium">Simplify your night viewing</div>
+                  
                   </div>
                 </div>
                 <ThemeToggle />

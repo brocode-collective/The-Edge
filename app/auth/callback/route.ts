@@ -4,11 +4,11 @@ import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 function getSafeRedirectPath(nextParam: string | null) {
   if (!nextParam || nextParam === "/") {
-    return "/browse";
+    return "/";
   }
 
   if (!nextParam.startsWith("/") || nextParam.startsWith("//")) {
-    return "/browse";
+    return "/";
   }
 
   return nextParam;
