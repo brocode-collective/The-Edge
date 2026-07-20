@@ -4,8 +4,8 @@
   "description": "Skip the queue at The Edge Canteen",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#3b9eff",
+  "background_color": "#0CC167",
+  "theme_color": "#0BC167",
   "orientation": "portrait",
   "icons": [
     {
