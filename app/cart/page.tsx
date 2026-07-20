@@ -41,7 +41,7 @@ export default function CartPage() {
 
   return (
     <div className="flex-1 bg-background flex flex-col">
-      <div className="flex-1 container mx-auto px-4 py-8 md:pt-28 grid lg:grid-cols-[1fr_380px] gap-12">
+      <div className="flex-1 container mx-auto px-4 pt-8 pb-24 md:pb-32 md:pt-28 grid lg:grid-cols-[1fr_380px] gap-12">
         {/* Left: cart items */}
         <div className="min-w-0">
           <div className="label-mono mb-2 text-primary">● Multi-shop cart</div>
