@@ -110,7 +110,7 @@ export function AuthLayout({ initialMode: propMode }: AuthLayoutProps) {
                   >
                     <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.05]">
                       {authMode === "login" ? (
-                        <>Skip the line.<br /><span className="text-muted-foreground/40">Order ahead.</span></>
+                        <>Order ahead.<br /><span className="text-muted-foreground/40">Skip the queue.</span></>
                       ) : (
                         <>Taste the<br /><span className="text-muted-foreground/40">Campus.</span></>
                       )}
@@ -160,14 +160,7 @@ export function AuthLayout({ initialMode: propMode }: AuthLayoutProps) {
                 )}
               </div>
 
-              <div className="flex items-center gap-3 p-4 rounded-2xl bg-secondary/30 dark:bg-white/5 text-[11px] text-muted-foreground leading-snug">
-                <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
-                <p>
-                  By continuing, you agree to The Edge&apos;s{" "}
-                  <Link href="/terms" className="underline hover:text-foreground font-medium">Terms</Link> and{" "}
-                  <Link href="/privacy" className="underline hover:text-foreground font-medium">Privacy Policy</Link>.
-                </p>
-              </div>
+              {/* Removed terms and privacy text */}
             </div>
           </main>
 
@@ -201,15 +194,7 @@ export function AuthLayout({ initialMode: propMode }: AuthLayoutProps) {
             
             {/* Floating UI elements */}
             <div className="absolute top-8 left-8">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 }}
-                className="glass-light px-4 py-2.5 rounded-full flex items-center gap-2 text-white text-sm font-semibold shadow-2xl backdrop-blur-md border border-white/20"
-              >
-                <Sparkles className="w-4 h-4 text-black animate-pulse" />
-                <span>v2.0 coming soon</span>
-              </motion.div>
+              {/* Removed v2.0 coming soon tag */}
             </div>
 
             <div className="absolute bottom-16 left-16 right-16 text-white space-y-4">
