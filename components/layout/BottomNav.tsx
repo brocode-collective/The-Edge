@@ -40,9 +40,19 @@ export const BottomNav = () => {
             >
               <div className="relative">
                 {link.label === "Cart" ? (
-                  <div className={`relative w-6 h-6 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(34,197,94,0.5)] brightness-150" : ""}`}>
+                  <div className={`relative w-7 h-7 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(34,197,94,0.5)] brightness-150" : ""}`}>
                     <Image src="/icons/cart-black.svg" alt="Cart" fill className="dark:hidden object-contain" />
                     <Image src="/icons/cart-white.svg" alt="Cart" fill className="hidden dark:block object-contain" />
+                  </div>
+                ) : link.label === "Profile" ? (
+                  <div className={`relative w-7 h-7 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(34,197,94,0.5)] brightness-150" : ""}`}>
+                    <Image src="/images/profile-black.svg" alt="Profile" fill className="dark:hidden object-contain" />
+                    <Image src="/images/profile-white.svg" alt="Profile" fill className="hidden dark:block object-contain" />
+                  </div>
+                ) : link.label === "Home" ? (
+                  <div className={`relative w-7 h-7 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(34,197,94,0.5)] brightness-150" : ""}`}>
+                    <Image src="/icons/home-black.svg" alt="Home" fill className="dark:hidden object-contain" />
+                    <Image src="/icons/home-white.svg" alt="Home" fill className="hidden dark:block object-contain" />
                   </div>
                 ) : (
                   <Icon
@@ -59,8 +69,8 @@ export const BottomNav = () => {
                 )}
               </div>
               <span
-                className={`text-[10px] font-medium transition-all ${
-                  isActive ? "text-primary drop-shadow-[0_0_5px_rgba(34,197,94,0.3)]" : "text-muted-foreground"
+                className={`text-[10px] text-foreground transition-all ${
+                  isActive ? "font-semibold" : "font-medium"
                 }`}
               >
                 {link.label}

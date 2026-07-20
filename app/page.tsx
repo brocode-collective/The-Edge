@@ -9,8 +9,8 @@ import { ShopCard } from "@/components/shop/ShopCard";
 import { FoodCard } from "@/components/shop/FoodCard";
 import { useMenuItems, useShops } from "@/lib/supabase/hooks";
 import { useCart } from "@/store/cart";
-import { ProfileAvatar } from "@/components/ui/ProfileAvatar";
 import { useProfile } from "@/store/profile";
+import { NotificationLink } from "@/components/layout/NotificationLink";
 
 export default function HomePage() {
   const [query, setQuery] = useState("");
@@ -46,14 +46,12 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="animate-fade-up">
             {/* Profile Greeting */}
-            <div className="flex items-center gap-3 mb-8 md:hidden">
-              <Link href="/profile" className="w-8 h-8 overflow-hidden hover:opacity-80 transition-smooth focus-dashed flex items-center justify-center">
-                <ProfileAvatar className="w-full h-full" iconSize={24} />
-              </Link>
+            <div className="flex items-center justify-between mb-8 md:hidden">
               <div>
                 <div className="text-[13px] text-muted-foreground font-medium">{greeting}</div>
                 <div className="text-lg font-semibold leading-tight text-foreground">{name.split(' ')[0]}</div>
               </div>
+              <NotificationLink className="w-7 h-7 hover:opacity-80" iconClassName="w-6 h-6" />
             </div>
 
             {/* Main Headline */}

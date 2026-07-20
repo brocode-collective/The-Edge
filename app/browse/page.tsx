@@ -16,7 +16,7 @@ const CATEGORIES = [
   { id: "desserts", label: "Desserts", emoji: "🍰" },
 ];
 
-const DIETARY = ["Halal", "Vegetarian", "Vegan", "Gluten-Free"];
+const DIETARY = ["Vegetarian", "Vegan"];
 
 export default function BrowsePage() {
   return (
@@ -116,7 +116,7 @@ function BrowseContent() {
       <main className="container mx-auto px-4 py-8 md:pt-28">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-2">Browse Menu</h1>
-          <p className="text-muted-foreground">Discover the best food on campus.</p>
+          <p className="text-muted-foreground">Discover the best food at The Edge.</p>
         </div>
 
           <div className="flex flex-col md:flex-row gap-6">
@@ -130,7 +130,7 @@ function BrowseContent() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search food or shop…"
-                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-secondary border border-transparent focus:border-primary focus:bg-background transition-smooth outline-none text-sm focus-dashed"
+                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-secondary border border-transparent focus:border-foreground focus:bg-background transition-smooth outline-none text-sm focus-dashed"
                 />
               </div>
 

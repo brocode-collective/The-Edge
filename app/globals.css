@@ -128,6 +128,20 @@
     font-feature-settings: "kern" 1, "ss01" 1, "cv11" 1;
   }
 
+  ::selection {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  img::selection {
+    background: hsl(var(--primary));
+  }
+
+  img {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

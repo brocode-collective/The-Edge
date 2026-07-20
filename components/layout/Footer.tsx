@@ -13,9 +13,6 @@ export const Footer = () => (
         <Link href="/vendor/login" className="hover:text-foreground focus-dashed transition-smooth">
           Vendor login
         </Link>
-        <Link href="/shop-registration" className="hover:text-foreground focus-dashed transition-smooth">
-          Register your shop
-        </Link>
       </div>
     </div>
   </footer>

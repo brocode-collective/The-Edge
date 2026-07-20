@@ -91,7 +91,7 @@ export const breakpoints = {
   xl: "1280px",
 };
 
-export const dietaryFilters = ["Vegan", "Vegetarian", "Halal", "Gluten-Free", "Keto"] as const;
+export const dietaryFilters = ["Vegan", "Vegetarian", "Keto"] as const;
 
 export const orderStatuses = ["new", "preparing", "ready", "completed", "expired", "customer_late"] as const;
 export type OrderStatus = typeof orderStatuses[number];

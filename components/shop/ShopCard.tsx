@@ -52,67 +52,73 @@ interface ShopCardProps {
   shop: Shop;
 }
 
-export const ShopCard = ({ shop }: ShopCardProps) => (
-  <article className="group flex-shrink-0 w-full h-[220px] snap-start transition-smooth hover:shadow-elevated rounded-3xl">
-    <Link
-      href={`/shop/${shop.slug}`}
-      id={`shop-card-${shop.id}`}
-      className="flex flex-col h-full rounded-3xl border border-border bg-card overflow-hidden focus-dashed"
-    >
-      {/* Banner Image Area */}
-      <div className="relative h-[90px] w-full flex-shrink-0 bg-secondary overflow-hidden">
-        {shop.banner ? (
-          <img 
-            src={shop.banner} 
-            alt={shop.name} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform" 
-          />
-        ) : (
-          <div className="w-full h-full grid place-items-center text-3xl">{shop.emoji}</div>
-        )}
-        
-        {/* Overlay Open/Closed Pill */}
-        <span
-          className={`absolute top-3 right-3 pill text-[10px] font-semibold px-2 py-0.5 z-10 backdrop-blur-md shadow-sm ${
-            shop.isOpen
-              ? "bg-success/90 text-success-foreground"
-              : "bg-muted/90 text-muted-foreground"
-          }`}
-        >
-          {shop.isOpen ? "● OPEN" : "● CLOSED"}
-        </span>
-      </div>
+const hiddenShopTags = new Set(["halal", "gluten-free", "gluten free"]);
 
-      {/* Content Area */}
-      <div className="p-4 pt-3 flex flex-col justify-between flex-1">
-        <div className="min-w-0">
-          <h3 className="font-semibold text-base tracking-tight truncate">{shop.name}</h3>
-          <p className="text-sm text-muted-foreground mt-0.5 truncate">{shop.tagline}</p>
+export const ShopCard = ({ shop }: ShopCardProps) => {
+  const visibleTags = shop.tags.filter((tag) => !hiddenShopTags.has(tag.toLowerCase()));
+
+  return (
+    <article className="group flex-shrink-0 w-full h-[220px] snap-start transition-smooth hover:shadow-elevated rounded-3xl">
+      <Link
+        href={`/shop/${shop.slug}`}
+        id={`shop-card-${shop.id}`}
+        className="flex flex-col h-full rounded-3xl border border-border bg-card overflow-hidden focus-dashed"
+      >
+        {/* Banner Image Area */}
+        <div className="relative h-[90px] w-full flex-shrink-0 bg-secondary overflow-hidden">
+          {shop.banner ? (
+            <img 
+              src={shop.banner} 
+              alt={shop.name} 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform" 
+            />
+          ) : (
+            <div className="w-full h-full grid place-items-center text-3xl">{shop.emoji}</div>
+          )}
+          
+          {/* Overlay Open/Closed Pill */}
+          <span
+            className={`absolute top-3 right-3 pill text-[10px] font-semibold px-2 py-0.5 z-10 backdrop-blur-md shadow-sm ${
+              shop.isOpen
+                ? "bg-success/90 text-success-foreground"
+                : "bg-destructive/90 text-destructive-foreground"
+            }`}
+          >
+            {shop.isOpen ? "● OPEN" : "● CLOSED"}
+          </span>
         </div>
 
-        <div className="mt-2 overflow-hidden flex flex-col gap-2">
-          {shop.closedNote && (
-            <ScrollIfLong className="w-max">
-              <p className="text-xs text-muted-foreground italic whitespace-nowrap">
-                {shop.closedNote}
-              </p>
-            </ScrollIfLong>
-          )}
+        {/* Content Area */}
+        <div className="p-4 pt-3 flex flex-col justify-between flex-1">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-base tracking-tight truncate">{shop.name}</h3>
+            <p className="text-sm text-muted-foreground mt-0.5 truncate">{shop.tagline}</p>
+          </div>
 
-          {shop.tags.length > 0 && (
-            <ScrollIfLong className="flex gap-1.5 w-max">
-              {shop.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground whitespace-nowrap"
-                >
-                  {tag}
-                </span>
-              ))}
-            </ScrollIfLong>
-          )}
+          <div className="mt-2 overflow-hidden flex flex-col gap-2">
+            {shop.closedNote && (
+              <ScrollIfLong className="w-max">
+                <p className="text-xs text-muted-foreground italic whitespace-nowrap">
+                  {shop.closedNote}
+                </p>
+              </ScrollIfLong>
+            )}
+
+            {visibleTags.length > 0 && (
+              <ScrollIfLong className="flex gap-1.5 w-max">
+                {visibleTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground whitespace-nowrap"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </ScrollIfLong>
+            )}
+          </div>
         </div>
-      </div>
-    </Link>
-  </article>
-);
+      </Link>
+    </article>
+  );
+};
