@@ -38,7 +38,7 @@ export function AuthLayout({ initialMode: propMode }: AuthLayoutProps) {
       if (!supabase) return;
       const { data: { user: session } } = await supabase.auth.getUser();
       if (session) {
-        router.replace("/browse");
+        router.replace("/");
       }
     };
     checkSession();

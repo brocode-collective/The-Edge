@@ -8,6 +8,8 @@ import { useState, useEffect } from "react";
 // import posthog from "posthog-js";
 // import { PostHogProvider } from "posthog-js/react";
 
+import { ThemeColorSync } from "@/components/layout/ThemeColorSync";
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -39,6 +41,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
       >
         {/* TODO: Wrap with PostHogProvider once real key is set */}
+        <ThemeColorSync />
         {children}
         <Toaster
           richColors
