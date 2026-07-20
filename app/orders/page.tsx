@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ReceiptText, ArrowRight, Clock, CheckCircle2, RotateCcw, Trash2 } from "lucide-react";
+import { ReceiptText, ArrowRight, Clock, CheckCircle2, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/store/cart";
 import { toast } from "sonner";
@@ -13,7 +13,6 @@ import { useUserOrders, useSupabaseUser } from "@/lib/supabase/hooks";
 export default function OrdersPage() {
   const { data: user } = useSupabaseUser();
   const { data: orders = [], isLoading } = useUserOrders(user?.id);
-  const [filter, setFilter] = useState<"all" | "today" | "week" | "month">("today");
   const [visibleCount, setVisibleCount] = useState(5);
   const [clearedOrderIds, setClearedOrderIds] = useState<Set<string>>(new Set());
   const { add } = useCart();
@@ -29,20 +28,8 @@ export default function OrdersPage() {
   }, [user?.id]);
 
   const filteredOrders = useMemo(() => {
-    const now = new Date();
-    const startOfToday = new Date(now.getTime() - 24 * 60 * 60 * 1000); // Last 24 hours
-    const startOfWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    return (orders || []).filter((o) => {
-      if (clearedOrderIds.has(o.id)) return false;
-      const placed = new Date(o.createdAt);
-      if (filter === "today") return placed >= startOfToday;
-      if (filter === "week") return placed >= startOfWeek;
-      if (filter === "month") return placed >= startOfMonth;
-      return true;
-    });
-  }, [orders, filter, clearedOrderIds]);
+    return (orders || []).filter((o) => !clearedOrderIds.has(o.id));
+  }, [orders, clearedOrderIds]);
 
   const visibleOrders = useMemo(() => filteredOrders.slice(0, visibleCount), [filteredOrders, visibleCount]);
   const totalSpend = useMemo(
@@ -83,55 +70,12 @@ export default function OrdersPage() {
     toast.success("Items added to cart!");
   };
 
-  const handleClearHistory = () => {
-    if (!user?.id || orders.length === 0) return;
-    if (!window.confirm("Clear your order history on this device?")) return;
-
-    const nextCleared = new Set(orders.map((order) => order.id));
-    localStorage.setItem(`edge-cleared-orders-${user.id}`, JSON.stringify([...nextCleared]));
-    setClearedOrderIds(nextCleared);
-    setVisibleCount(5);
-    toast.success("Order history cleared");
-  };
-
   return (
     <div className="flex-1 bg-background flex flex-col">
       <main className="flex-1 container mx-auto px-4 pt-8 pb-24 md:pb-32 md:pt-28 max-w-3xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-2">Order History</h1>
           <p className="text-muted-foreground">Track your current and past orders.</p>
-        </div>
-
-        {/* Filters */}
-        <div className="flex items-start justify-between gap-3 pb-4 mb-4">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {(["all", "today", "week", "month"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => {
-                  setFilter(f);
-                  setVisibleCount(5);
-                }}
-                className={`pill px-4 py-2 text-sm font-medium transition-smooth capitalize ${
-                  filter === f
-                    ? "bg-foreground text-background"
-                    : "bg-secondary text-muted-foreground hover:bg-accent"
-                }`}
-              >
-                {f === "all" ? "All Orders" : f}
-              </button>
-            ))}
-          </div>
-          {orders.length > 0 && (
-            <button
-              type="button"
-              onClick={handleClearHistory}
-              className="pill shrink-0 border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-smooth focus-dashed"
-            >
-              <Trash2 className="w-4 h-4 inline mr-1.5" />
-              Clear
-            </button>
-          )}
         </div>
 
         {isLoading ? (
@@ -256,9 +200,7 @@ export default function OrdersPage() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h2 className="font-bold tracking-tight">Total spend</h2>
-                  <p className="text-xs text-muted-foreground mt-1 capitalize">
-                    {filter === "all" ? "All orders" : `${filter} orders`}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">All orders</p>
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-black tracking-tight">Rs {totalSpend}</div>
@@ -270,31 +212,20 @@ export default function OrdersPage() {
             </section>
           </div>
         ) : (
-          <div className="text-center py-24 rounded-[2rem] border border-dashed border-border bg-secondary/20">
-            <div className="w-16 h-16 rounded-full bg-secondary grid place-items-center mx-auto mb-4">
-              <ReceiptText className="w-6 h-6 text-muted-foreground" />
+          <div className="text-center py-20 md:pt-24">
+            <div className="w-24 h-24 bg-secondary/50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <ReceiptText className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h2 className="text-xl font-semibold mb-2">No orders found</h2>
-            <p className="text-muted-foreground mb-8">
-              {filter === "all" 
-                ? "Your order history will appear here once you place an order."
-                : `You don't have any orders for ${filter}.`}
+            <h2 className="text-3xl font-bold tracking-tight">No orders found</h2>
+            <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
+              Your order history will appear here once you place an order.
             </p>
-            {filter === "all" ? (
-              <Link
-                href="/"
-                className="pill bg-foreground text-background px-8 py-3 font-medium hover:bg-foreground/90 transition-smooth"
-              >
-                Start Ordering
-              </Link>
-            ) : (
-              <button
-                onClick={() => setFilter("all")}
-                className="pill border border-border px-8 py-3 font-medium hover:bg-secondary transition-smooth"
-              >
-                Show all orders
-              </button>
-            )}
+            <Link
+              href="/browse"
+              className="inline-flex mt-8 pill bg-foreground text-background px-10 py-4 font-bold focus-dashed hover:bg-foreground/90 transition-smooth shadow-pop"
+            >
+              Start shopping
+            </Link>
           </div>
         )}
       </main>
