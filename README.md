@@ -50,9 +50,17 @@ Run this in the Supabase SQL Editor:
 - **Close**: `select private.set_shop_registration_enabled(false);`
 
 #### 2. Approve a Shop
-1. Find the `id` of the request in the `shop_registrations` table.
-2. Run in SQL Editor: `select private.approve_shop_registration('ID_HERE');`
-   - *This automatically creates the shop row and links the owner's Google ID.*
+Run one of the following queries in the Supabase SQL Editor:
+```sql
+-- Approve by registration ID
+SELECT private.approve_shop_registration('REGISTRATION_ID_HERE');
+
+-- Or approve by shop slug
+SELECT private.approve_shop_registration(id)
+FROM public.shop_registrations
+WHERE slug = 'my-shop-slug';
+```
+*This automatically creates the shop record and links the owner's user account.*
 
 #### 3. Reject a Request
 Run in SQL Editor: `select private.reject_shop_registration('ID_HERE');`
