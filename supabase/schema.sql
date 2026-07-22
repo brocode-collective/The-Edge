@@ -14,7 +14,6 @@ create table public.profiles (
   email text not null default '',
   avatar_url text,
   total_orders integer not null default 0,
-  tier text not null default 'bronze' check (tier in ('bronze', 'silver', 'gold', 'platinum', 'diamond')),
   created_at timestamptz not null default now()
 );
 

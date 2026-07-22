@@ -900,7 +900,7 @@ export async function fetchShopRegistrationEnabled(): Promise<boolean> {
 }
 
 // ---------------------------------------------------------------------------
-// PROFILE / GAMIFICATION
+// PROFILE
 // ---------------------------------------------------------------------------
 
 export type UserProfile = {
@@ -909,7 +909,6 @@ export type UserProfile = {
   email: string;
   avatarUrl?: string;
   totalOrders: number;
-  tier: string;
 };
 
 export async function fetchProfile(userId: string): Promise<UserProfile | null> {
@@ -929,7 +928,6 @@ export async function fetchProfile(userId: string): Promise<UserProfile | null> 
     email: data.email,
     avatarUrl: data.avatar_url ?? undefined,
     totalOrders: data.total_orders,
-    tier: data.tier,
   };
 }
 

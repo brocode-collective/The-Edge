@@ -2,13 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { 
-  Bell, LogOut, ChevronRight, Moon, Sun,
-  BadgeCheck, Pencil, CreditCard, Heart, 
-  HelpCircle, MessageSquare, FileText, ExternalLink, Check,
-  Trophy, Star, Crown, Zap, Medal, Store, ArrowRight
+import {
+  Bell, LogOut, ChevronRight, Moon, Pencil, CreditCard, Heart,
+  HelpCircle, Check,
+  Store, ArrowRight
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ProfileAvatar } from "@/components/ui/ProfileAvatar";
 import { useSupabaseUser, useProfile, useUserOrders, useMyApprovedShops } from "@/lib/supabase/hooks";
@@ -16,7 +14,6 @@ import { updateProfile } from "@/lib/supabase/data";
 import { useSignOut } from "@/lib/supabase/useSignOut";
 import { DeleteAccountButton } from "@/components/auth/DeleteAccountButton";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { Footer } from "@/components/layout/Footer";
 
 export default function ProfilePage() {
@@ -65,19 +62,6 @@ export default function ProfilePage() {
 
   if (!mounted) return null;
 
-  // Tier Logic
-  const tiers = {
-    bronze: { label: "Bronze", badge: Medal, color: "text-orange-400", next: 10, bg: "bg-orange-400/10" },
-    silver: { label: "Silver", badge: Star, color: "text-slate-400", next: 25, bg: "bg-slate-400/10" },
-    gold: { label: "Gold", badge: Trophy, color: "text-yellow-400", next: 50, bg: "bg-yellow-400/10" },
-    platinum: { label: "Platinum", badge: Zap, color: "text-cyan-400", next: 100, bg: "bg-cyan-400/10" },
-    diamond: { label: "Diamond", badge: Crown, color: "text-purple-400", next: 1000, bg: "bg-purple-400/10" },
-  };
-
-  const currentTier = (profile?.tier?.toLowerCase() as keyof typeof tiers) || "bronze";
-  const tierInfo = tiers[currentTier];
-  const progress = Math.min(100, ((profile?.totalOrders || 0) / tierInfo.next) * 100);
-
   return (
     <div className="flex-1 bg-background flex flex-col">
       <main className="container mx-auto px-4 py-8 md:pt-28 md:py-12 pb-24 flex-1">
@@ -86,16 +70,10 @@ export default function ProfilePage() {
           {/* ── LEFT COLUMN (Profile Info) ── */}
           <aside className="w-full md:w-80 shrink-0">
             <div className="bg-white dark:bg-card border border-border rounded-[2.5rem] p-8 sticky top-24 overflow-hidden">
-              {/* Tier Background Glow */}
-              <div className={`absolute -top-12 -right-12 w-32 h-32 blur-3xl opacity-20 rounded-full ${tierInfo.bg}`} />
-              
               <div className="flex flex-col items-center text-center relative z-10">
                 <div className="relative mb-6 group">
                   <div className="w-32 h-32 overflow-hidden flex items-center justify-center">
                     <ProfileAvatar className="w-full h-full" iconSize={64} />
-                  </div>
-                  <div className={`absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-white dark:bg-card border border-border flex items-center justify-center ${tierInfo.color}`}>
-                    <tierInfo.badge className="w-5 h-5" />
                   </div>
                 </div>
 
@@ -138,24 +116,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <p className="text-muted-foreground text-sm font-medium mb-8">{user?.email}</p>
-
-                {/* Tier Progress */}
-                <div className="w-full mb-8 text-left">
-                  <div className="flex justify-between items-end mb-2">
-                    <div className={`text-[10px] font-black uppercase tracking-widest ${tierInfo.color}`}>{tierInfo.label} Member</div>
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase">{profile?.totalOrders || 0}/{tierInfo.next} Orders</div>
-                  </div>
-                  <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      className={`h-full rounded-full ${tierInfo.bg.replace('/10', '')}`}
-                    />
-                  </div>
-                  <p className="text-[9px] text-muted-foreground mt-2 font-medium">
-                    {tierInfo.next - (profile?.totalOrders || 0)} more orders to unlock the next tier!
-                  </p>
-                </div>
 
                 <div className="w-full grid grid-cols-2 gap-4 border-y border-border py-6 mb-8">
                   <div className="space-y-1">
