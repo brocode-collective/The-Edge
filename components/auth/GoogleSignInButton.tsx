@@ -57,8 +57,6 @@ export function GoogleSignInButton({
       if (callbackNextPath) {
         callbackUrl.searchParams.set("next", callbackNextPath);
       }
-      // Pass the mode to the callback to handle login-only vs signup logic
-      callbackUrl.searchParams.set("mode", mode);
 
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: "google",
