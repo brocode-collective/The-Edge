@@ -15,13 +15,14 @@ import { updateProfile } from "@/lib/supabase/data";
 import { useSignOut } from "@/lib/supabase/useSignOut";
 import { DeleteAccountButton } from "@/components/auth/DeleteAccountButton";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 import { Footer } from "@/components/layout/Footer";
 
 export default function ProfilePage() {
   const [mounted, setMounted] = React.useState(false);
   const { data: user } = useSupabaseUser();
-  const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
+  const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile(user?.id);
   const { data: orders = [] } = useUserOrders(user?.id);
   const { data: shops = [] } = useMyApprovedShops(user?.id);
   const { signOut, isSigningOut } = useSignOut("/auth");
@@ -97,6 +98,8 @@ export default function ProfilePage() {
                       onBlur={handleUpdateName}
                       className="text-2xl font-bold tracking-tight bg-transparent border-b border-primary outline-none text-center min-w-0 max-w-[220px] text-foreground"
                     />
+                  ) : profileLoading ? (
+                    <Skeleton className="h-7 w-32" />
                   ) : (
                     <h2 className="text-2xl font-bold tracking-tight text-center truncate">
                       {profile?.displayName || user?.email?.split('@')[0] || "Guest"}
@@ -121,7 +124,11 @@ export default function ProfilePage() {
 
                 <div className="w-full grid grid-cols-2 gap-4 border-y border-border py-6 mb-8">
                   <div className="space-y-1">
-                    <div className="text-xl font-bold">{profile?.totalOrders || 0}</div>
+                    {profileLoading ? (
+                      <Skeleton className="h-6 w-8" />
+                    ) : (
+                      <div className="text-xl font-bold">{profile?.totalOrders || 0}</div>
+                    )}
                     <div className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground">Orders</div>
                   </div>
                   <div className="space-y-1">

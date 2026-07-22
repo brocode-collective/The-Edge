@@ -7,12 +7,13 @@ import { AlertCircle } from "lucide-react";
 import { FoodCard } from "@/components/shop/FoodCard";
 import { useCart } from "@/store/cart";
 import { useShop, useShopMenuItems } from "@/lib/supabase/hooks";
+import { Skeleton, FoodCardSkeleton } from "@/components/ui/Skeleton";
 
 export default function ShopPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const { data: shop, isLoading } = useShop(slug ?? "");
-  const { data: items = [] } = useShopMenuItems(shop?.id);
+  const { data: items = [], isLoading: itemsLoading } = useShopMenuItems(shop?.id);
   const cats = useMemo(() => Array.from(new Set(items.map((i) => i.category))), [items]);
   const [activeCat, setActiveCat] = useState<string>("");
   const { addRecentlyViewed } = useCart();
@@ -29,9 +30,19 @@ export default function ShopPage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 bg-background">
-        <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">
-          Loading shop...
+      <div className="flex-1 bg-background pb-8">
+        <Skeleton className="w-full h-48 sm:h-64 rounded-none" />
+        <div className="container mx-auto px-4">
+          <div className="mt-6 flex flex-col gap-3">
+            <Skeleton className="h-9 w-64" />
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-4 w-full max-w-xl" />
+          </div>
+          <div className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <FoodCardSkeleton key={idx} />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -118,7 +129,13 @@ export default function ShopPage() {
         )}
 
         {/* Menu grid */}
-        {items.length === 0 ? (
+        {itemsLoading ? (
+          <div className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <FoodCardSkeleton key={idx} />
+            ))}
+          </div>
+        ) : items.length === 0 ? (
           <div className="text-center py-24 mt-8 rounded-[2rem] border border-dashed border-border bg-secondary/20">
             <div className="w-16 h-16 rounded-full bg-secondary grid place-items-center mx-auto mb-4">
               <span className="text-2xl">👨‍🍳</span>
