@@ -25,6 +25,7 @@ import {
   updateMenuItemDietaryTags,
   deleteVendorOrder,
   updateShopHours,
+  updateShopDetails,
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
@@ -161,6 +162,18 @@ export function useUpdateShopHours(shopSlug?: string) {
   return useMutation({
     mutationFn: ({ shopId, openingTime, closingTime }: { shopId: string; openingTime: string; closingTime: string }) =>
       updateShopHours(shopId, openingTime, closingTime),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-shop", shopSlug] });
+      queryClient.invalidateQueries({ queryKey: ["shops"] });
+    },
+  });
+}
+
+export function useUpdateShopDetails(shopSlug?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ shopId, updates }: { shopId: string; updates: Parameters<typeof updateShopDetails>[1] }) =>
+      updateShopDetails(shopId, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-shop", shopSlug] });
       queryClient.invalidateQueries({ queryKey: ["shops"] });

@@ -614,15 +614,48 @@ export async function updateShopHours(shopId: string, openingTime: string, closi
   if (error) throw error;
 }
 
+export async function updateShopDetails(
+  shopId: string,
+  updates: Partial<{
+    name: string;
+    tagline: string;
+    description: string;
+    emoji: string;
+    banner_url: string | null;
+    logo_url: string | null;
+    is_open: boolean;
+    closed_note: string | null;
+    prep_time_minutes: number;
+    payment_link: string | null;
+    opening_time: string;
+    closing_time: string;
+  }>
+) {
+  const supabase = getSupabaseBrowserClient();
+  if (!supabase) return;
+
+  const { error } = await supabase
+    .from("shops")
+    .update(updates)
+    .eq("id", shopId);
+
+  if (error) throw error;
+}
+
 export async function createMenuItem(item: {
   shopId: string;
   title: string;
   description?: string;
   imageUrl?: string;
   priceLkr: number;
+  discountLkr?: number | null;
   category: string;
   dietaryTags?: string[];
   isAvailable?: boolean;
+  maxPerOrder?: number | null;
+  estimatedPrepTimeMinutes?: number;
+  badge?: string | null;
+  isPopular?: boolean;
 }) {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) return;
@@ -633,9 +666,14 @@ export async function createMenuItem(item: {
     description: item.description ?? "",
     image_url: item.imageUrl ?? null,
     price_lkr: item.priceLkr,
+    discount_lkr: item.discountLkr ?? null,
     category: item.category,
     dietary_tags: item.dietaryTags ?? [],
     is_available: item.isAvailable ?? true,
+    max_per_order: item.maxPerOrder ?? null,
+    estimated_prep_time_minutes: item.estimatedPrepTimeMinutes ?? 10,
+    badge: item.badge ?? null,
+    is_popular: item.isPopular ?? false,
   });
 
   if (error) throw error;
@@ -648,9 +686,14 @@ export async function updateMenuItem(
     description: string;
     image_url: string | null;
     price_lkr: number;
+    discount_lkr: number | null;
     category: string;
     dietary_tags: string[];
     is_available: boolean;
+    max_per_order: number | null;
+    estimated_prep_time_minutes: number;
+    badge: string | null;
+    is_popular: boolean;
   }>
 ) {
   const supabase = getSupabaseBrowserClient();

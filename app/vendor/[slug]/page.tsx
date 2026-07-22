@@ -24,7 +24,8 @@ import {
   useShopMenuItems,
   useSupabaseUser,
   useVendorShop,
-  useUpdateMenuItemDietaryTags
+  useUpdateMenuItemDietaryTags,
+  useUpdateShopDetails
 } from "@/lib/supabase/hooks";
 import { useSignOut } from "@/lib/supabase/useSignOut";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -47,6 +48,7 @@ export default function VendorDashboard() {
   const updateItemMutation = useUpdateMenuItem(shop?.id);
   const deleteItemMutation = useDeleteMenuItem(shop?.id);
   const updateHoursMutation = useUpdateShopHours(slug);
+  const updateShopDetailsMutation = useUpdateShopDetails(slug);
   const deleteOrderMutation = useDeleteVendorOrder();
   const { signOut, isSigningOut } = useSignOut("/vendor/login");
   
@@ -63,19 +65,48 @@ export default function VendorDashboard() {
     title: "",
     description: "",
     price: "",
+    discountPrice: "",
     category: "Main",
     imageUrl: "",
     isAvailable: true,
+    maxPerOrder: "",
+    estimatedPrepTime: "10",
+    badge: "",
+    isPopular: false,
   });
 
   // Settings State
   const [openingTime, setOpeningTime] = useState("08:00");
   const [closingTime, setClosingTime] = useState("22:00");
+  const [shopForm, setShopForm] = useState({
+    name: "",
+    tagline: "",
+    description: "",
+    emoji: "🍽️",
+    bannerUrl: "",
+    logoUrl: "",
+    isOpen: true,
+    closedNote: "",
+    prepTimeMinutes: 10,
+    paymentLink: "",
+  });
 
   useEffect(() => {
     if (shop) {
       setOpeningTime(shop.openingTime || "08:00");
       setClosingTime(shop.closingTime || "22:00");
+      setShopForm({
+        name: shop.name || "",
+        tagline: shop.tagline || "",
+        description: shop.description || "",
+        emoji: shop.emoji || "🍽️",
+        bannerUrl: shop.banner || "",
+        logoUrl: shop.logo || "",
+        isOpen: shop.isOpen ?? true,
+        closedNote: shop.closedNote || "",
+        prepTimeMinutes: shop.prepTime ? parseInt(shop.prepTime, 10) || 10 : 10,
+        paymentLink: shop.paymentLink || "",
+      });
     }
   }, [shop]);
 
@@ -113,17 +144,61 @@ export default function VendorDashboard() {
     }
   };
 
-  const handleSaveHours = async () => {
+  const handleSaveShopDetails = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!shop?.id) return;
     try {
-      await updateHoursMutation.mutateAsync({
+      await updateShopDetailsMutation.mutateAsync({
         shopId: shop.id,
-        openingTime,
-        closingTime,
+        updates: {
+          name: shopForm.name,
+          tagline: shopForm.tagline,
+          description: shopForm.description,
+          emoji: shopForm.emoji,
+          banner_url: shopForm.bannerUrl || null,
+          logo_url: shopForm.logoUrl || null,
+          is_open: shopForm.isOpen,
+          closed_note: shopForm.closedNote || null,
+          prep_time_minutes: shopForm.prepTimeMinutes,
+          payment_link: shopForm.paymentLink || null,
+          opening_time: openingTime,
+          closing_time: closingTime,
+        },
       });
-      toast.success("Operating hours updated!");
+      toast.success("Store details updated successfully!");
     } catch {
-      toast.error("Failed to update operating hours");
+      toast.error("Failed to update store details");
+    }
+  };
+
+  const handleToggleStoreStatus = async () => {
+    if (!shop?.id) return;
+    const nextIsOpen = !shopForm.isOpen;
+    try {
+      await updateShopDetailsMutation.mutateAsync({
+        shopId: shop.id,
+        updates: {
+          is_open: nextIsOpen,
+        },
+      });
+      setShopForm((prev) => ({ ...prev, isOpen: nextIsOpen }));
+      toast.success(nextIsOpen ? "Store is now LIVE and accepting orders!" : "Store is now PAUSED.");
+    } catch {
+      toast.error("Failed to update store status");
+    }
+  };
+
+  const handleQuickToggleItemAvailability = async (itemId: string, currentStatus: boolean) => {
+    try {
+      await updateItemMutation.mutateAsync({
+        menuItemId: itemId,
+        updates: {
+          is_available: !currentStatus,
+        },
+      });
+      toast.success(!currentStatus ? "Item marked as In Stock" : "Item marked as Out of Stock");
+    } catch {
+      toast.error("Failed to update item availability");
     }
   };
 
@@ -131,12 +206,17 @@ export default function VendorDashboard() {
     if (item) {
       setEditingItemId(item.id);
       setItemForm({
-        title: item.title,
+        title: item.title || "",
         description: item.description || "",
-        price: item.price.toString(),
+        price: item.price ? item.price.toString() : "",
+        discountPrice: item.discount ? item.discount.toString() : "",
         category: item.category || "Main",
         imageUrl: item.image || "",
         isAvailable: item.isAvailable ?? true,
+        maxPerOrder: item.maxPerOrder ? item.maxPerOrder.toString() : "",
+        estimatedPrepTime: item.estimatedPrepTime ? parseInt(item.estimatedPrepTime, 10).toString() : "10",
+        badge: item.badge || "",
+        isPopular: item.popular ?? false,
       });
     } else {
       setEditingItemId(null);
@@ -144,9 +224,14 @@ export default function VendorDashboard() {
         title: "",
         description: "",
         price: "",
+        discountPrice: "",
         category: "Main",
         imageUrl: "",
         isAvailable: true,
+        maxPerOrder: "",
+        estimatedPrepTime: "10",
+        badge: "",
+        isPopular: false,
       });
     }
     setIsItemModalOpen(true);
@@ -162,6 +247,10 @@ export default function VendorDashboard() {
       return;
     }
 
+    const discountNum = itemForm.discountPrice ? parseInt(itemForm.discountPrice, 10) : null;
+    const maxOrderNum = itemForm.maxPerOrder ? parseInt(itemForm.maxPerOrder, 10) : null;
+    const prepTimeNum = itemForm.estimatedPrepTime ? parseInt(itemForm.estimatedPrepTime, 10) : 10;
+
     try {
       if (editingItemId) {
         await updateItemMutation.mutateAsync({
@@ -170,9 +259,14 @@ export default function VendorDashboard() {
             title: itemForm.title,
             description: itemForm.description,
             price_lkr: priceNum,
+            discount_lkr: discountNum,
             category: itemForm.category,
             image_url: itemForm.imageUrl || null,
             is_available: itemForm.isAvailable,
+            max_per_order: maxOrderNum,
+            estimated_prep_time_minutes: prepTimeNum,
+            badge: itemForm.badge || null,
+            is_popular: itemForm.isPopular,
           },
         });
         toast.success("Menu item updated");
@@ -182,9 +276,14 @@ export default function VendorDashboard() {
           title: itemForm.title,
           description: itemForm.description,
           priceLkr: priceNum,
+          discountLkr: discountNum,
           category: itemForm.category,
           imageUrl: itemForm.imageUrl,
           isAvailable: itemForm.isAvailable,
+          maxPerOrder: maxOrderNum,
+          estimatedPrepTimeMinutes: prepTimeNum,
+          badge: itemForm.badge || null,
+          isPopular: itemForm.isPopular,
         });
         toast.success("Menu item created");
       }
@@ -517,19 +616,56 @@ export default function VendorDashboard() {
               <div className="grid gap-4">
                 {menuItems.map((item) => (
                   <div key={item.id} className="rounded-3xl border border-border bg-card p-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold tracking-tight text-lg">{item.title}</span>
+                        {item.popular && (
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold">⭐ Popular</span>
+                        )}
+                        {item.badge && (
+                          <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">⚡ {item.badge}</span>
+                        )}
                         {!item.isAvailable && (
-                          <span className="px-2 py-0.5 rounded-md bg-destructive/10 text-destructive text-[10px] font-bold">Unavailable</span>
+                          <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-bold">Out of Stock</span>
                         )}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">{item.category} · Rs {item.price.toFixed(0)}</div>
+                      <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                        <span>{item.category}</span>
+                        <span>·</span>
+                        <span className="font-semibold text-foreground">Rs {item.price.toFixed(0)}</span>
+                        {item.discount && (
+                          <span className="line-through text-xs text-muted-foreground">Rs {item.discount}</span>
+                        )}
+                        {item.maxPerOrder && (
+                          <span className="text-xs px-2 py-0.5 bg-secondary rounded-full font-medium text-foreground">
+                            Max {item.maxPerOrder}/order
+                          </span>
+                        )}
+                        {item.estimatedPrepTime && (
+                          <span className="text-xs px-2 py-0.5 bg-secondary rounded-full font-medium text-foreground">
+                            ⏱️ {item.estimatedPrepTime}
+                          </span>
+                        )}
+                      </div>
                       {item.description && <div className="text-xs text-muted-foreground mt-1 line-clamp-1">{item.description}</div>}
                     </div>
 
                     <div className="flex items-center gap-3 flex-wrap">
-                      <div className="flex flex-wrap gap-2">
+                      {/* Quick stock toggle */}
+                      <button
+                        type="button"
+                        onClick={() => handleQuickToggleItemAvailability(item.id, item.isAvailable)}
+                        disabled={updateItemMutation.isPending}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-all ${
+                          item.isAvailable
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                            : "border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                        }`}
+                      >
+                        {item.isAvailable ? "In Stock" : "Out of Stock"}
+                      </button>
+
+                      <div className="flex flex-wrap gap-1.5">
                         {(["Vegan", "Vegetarian"] as const).map((tag) => {
                           const active = item.dietaryTags.includes(tag);
                           return (
@@ -538,7 +674,7 @@ export default function VendorDashboard() {
                               type="button"
                               onClick={() => toggleDietaryTag(item.id, item.dietaryTags, tag)}
                               disabled={updateDietaryTags.isPending}
-                              className={`rounded-full border px-3 py-1.5 text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-60 ${
+                              className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all disabled:opacity-60 ${
                                 active
                                   ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
                                   : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground"
@@ -572,41 +708,179 @@ export default function VendorDashboard() {
 
           {/* ── SETTINGS TAB ── */}
           {tab === "settings" && (
-            <div className="max-w-xl space-y-6">
+            <form onSubmit={handleSaveShopDetails} className="max-w-2xl space-y-6">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight">Store Settings</h2>
-                <p className="text-sm text-muted-foreground mt-1">Configure daily operating hours and availability.</p>
+                <h2 className="text-2xl font-bold tracking-tight">Store Management & Controls</h2>
+                <p className="text-sm text-muted-foreground mt-1">Configure shop profile, branding, order limits, and operational hours.</p>
               </div>
 
-              <div className="rounded-3xl border border-border bg-card p-6 space-y-6">
-                <div className="space-y-4">
-                  <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">Daily Operating Hours</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Opening Time</label>
-                      <Input
-                        type="time"
-                        value={openingTime}
-                        onChange={(e) => setOpeningTime(e.target.value)}
-                        className="rounded-2xl"
-                      />
+              {/* Store Status Control */}
+              <div className="rounded-3xl border border-border bg-card p-6 space-y-4">
+                <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">Store Live Status</h3>
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-secondary/30 border border-border">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 font-bold text-sm">
+                      <span className={`w-2.5 h-2.5 rounded-full ${shopForm.isOpen ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"}`} />
+                      {shopForm.isOpen ? "Store is currently LIVE & Accepting Orders" : "Store is PAUSED / CLOSED"}
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Closing Time</label>
-                      <Input
-                        type="time"
-                        value={closingTime}
-                        onChange={(e) => setClosingTime(e.target.value)}
-                        className="rounded-2xl"
-                      />
-                    </div>
+                    <p className="text-xs text-muted-foreground">Toggle off to temporarily pause all incoming customer orders.</p>
                   </div>
-                  <Button onClick={handleSaveHours} disabled={updateHoursMutation.isPending} className="pill bg-foreground text-background w-full">
-                    {updateHoursMutation.isPending ? "Saving..." : "Save Operating Hours"}
-                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleToggleStoreStatus}
+                    className={`pill px-4 py-2 text-xs font-bold transition-all ${
+                      shopForm.isOpen
+                        ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                        : "bg-muted text-muted-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    {shopForm.isOpen ? "Pause Store" : "Open Store"}
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Closed Note / Notice to Customers</label>
+                  <Input
+                    value={shopForm.closedNote}
+                    onChange={(e) => setShopForm({ ...shopForm, closedNote: e.target.value })}
+                    placeholder="e.g. Back in 30 minutes! High order volume."
+                    className="rounded-2xl"
+                  />
+                  <p className="text-[11px] text-muted-foreground">Shown to customers when your shop is paused or closed.</p>
                 </div>
               </div>
 
+              {/* Branding & Profile Details */}
+              <div className="rounded-3xl border border-border bg-card p-6 space-y-4">
+                <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">Shop Branding & Profile</h3>
+                
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <div className="space-y-1 sm:col-span-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Shop Name</label>
+                    <Input
+                      required
+                      value={shopForm.name}
+                      onChange={(e) => setShopForm({ ...shopForm, name: e.target.value })}
+                      className="rounded-2xl"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Emoji Icon</label>
+                    <Input
+                      value={shopForm.emoji}
+                      onChange={(e) => setShopForm({ ...shopForm, emoji: e.target.value })}
+                      placeholder="🍽️"
+                      className="rounded-2xl text-center text-lg"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Tagline</label>
+                  <Input
+                    value={shopForm.tagline}
+                    onChange={(e) => setShopForm({ ...shopForm, tagline: e.target.value })}
+                    placeholder="e.g. Fresh artisan pizza & pasta"
+                    className="rounded-2xl"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Description</label>
+                  <Input
+                    value={shopForm.description}
+                    onChange={(e) => setShopForm({ ...shopForm, description: e.target.value })}
+                    placeholder="Tell customers about your kitchen..."
+                    className="rounded-2xl"
+                  />
+                </div>
+
+                {/* Banner & Logo URLs */}
+                <div className="grid sm:grid-cols-2 gap-4 pt-2">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Banner Image URL</label>
+                    <Input
+                      value={shopForm.bannerUrl}
+                      onChange={(e) => setShopForm({ ...shopForm, bannerUrl: e.target.value })}
+                      placeholder="https://..."
+                      className="rounded-2xl"
+                    />
+                    {shopForm.bannerUrl && (
+                      <div className="relative h-20 w-full rounded-2xl overflow-hidden border border-border bg-secondary">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={shopForm.bannerUrl} alt="Banner Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Logo Image URL</label>
+                    <Input
+                      value={shopForm.logoUrl}
+                      onChange={(e) => setShopForm({ ...shopForm, logoUrl: e.target.value })}
+                      placeholder="https://..."
+                      className="rounded-2xl"
+                    />
+                    {shopForm.logoUrl && (
+                      <div className="relative h-20 w-20 rounded-2xl overflow-hidden border border-border bg-secondary">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={shopForm.logoUrl} alt="Logo Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-1 pt-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Payment Gateway / Payment Link</label>
+                  <Input
+                    value={shopForm.paymentLink}
+                    onChange={(e) => setShopForm({ ...shopForm, paymentLink: e.target.value })}
+                    placeholder="https://pay.example.com/..."
+                    className="rounded-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Kitchen Operations & Hours */}
+              <div className="rounded-3xl border border-border bg-card p-6 space-y-4">
+                <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">Kitchen Prep Time & Operating Hours</h3>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Average Order Prep Time (Minutes)</label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={120}
+                    value={shopForm.prepTimeMinutes}
+                    onChange={(e) => setShopForm({ ...shopForm, prepTimeMinutes: parseInt(e.target.value, 10) || 10 })}
+                    className="rounded-2xl max-w-xs"
+                  />
+                  <p className="text-[11px] text-muted-foreground">Used to calculate estimated pickup times for customers.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Opening Time</label>
+                    <Input
+                      type="time"
+                      value={openingTime}
+                      onChange={(e) => setOpeningTime(e.target.value)}
+                      className="rounded-2xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Closing Time</label>
+                    <Input
+                      type="time"
+                      value={closingTime}
+                      onChange={(e) => setClosingTime(e.target.value)}
+                      className="rounded-2xl"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Theme Settings */}
               <div className="rounded-3xl border border-border bg-card p-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -616,7 +890,15 @@ export default function VendorDashboard() {
                   <ThemeToggle />
                 </div>
               </div>
-            </div>
+
+              <Button
+                type="submit"
+                disabled={updateShopDetailsMutation.isPending}
+                className="pill bg-foreground text-background font-bold h-12 w-full text-base"
+              >
+                {updateShopDetailsMutation.isPending ? "Saving changes..." : "Save Store Configuration"}
+              </Button>
+            </form>
           )}
 
         </div>
@@ -630,7 +912,7 @@ export default function VendorDashboard() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-md bg-background border border-border rounded-3xl p-6 space-y-5"
+              className="w-full max-w-lg bg-background border border-border rounded-3xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex justify-between items-center border-b border-border pb-4">
                 <h3 className="font-bold text-lg">{editingItemId ? "Edit Menu Item" : "Add Menu Item"}</h3>
@@ -641,7 +923,7 @@ export default function VendorDashboard() {
 
               <form onSubmit={handleSaveItem} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Title</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Item Title</label>
                   <Input
                     required
                     value={itemForm.title}
@@ -653,7 +935,7 @@ export default function VendorDashboard() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Price (LKR)</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Regular Price (LKR)</label>
                     <Input
                       required
                       type="number"
@@ -665,12 +947,61 @@ export default function VendorDashboard() {
                   </div>
 
                   <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Discount Price (LKR)</label>
+                    <Input
+                      type="number"
+                      value={itemForm.discountPrice}
+                      onChange={(e) => setItemForm({ ...itemForm, discountPrice: e.target.value })}
+                      placeholder="e.g. 480"
+                      className="rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
                     <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Category</label>
                     <Input
                       required
                       value={itemForm.category}
                       onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}
                       placeholder="e.g. Mains, Beverages"
+                      className="rounded-2xl"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Max Per Order Limit</label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={itemForm.maxPerOrder}
+                      onChange={(e) => setItemForm({ ...itemForm, maxPerOrder: e.target.value })}
+                      placeholder="Unlimited"
+                      className="rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Estimated Prep (Mins)</label>
+                    <Input
+                      type="number"
+                      value={itemForm.estimatedPrepTime}
+                      onChange={(e) => setItemForm({ ...itemForm, estimatedPrepTime: e.target.value })}
+                      placeholder="10"
+                      className="rounded-2xl"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Badge Label</label>
+                    <Input
+                      value={itemForm.badge}
+                      onChange={(e) => setItemForm({ ...itemForm, badge: e.target.value })}
+                      placeholder="e.g. Chef Special, Spicy"
                       className="rounded-2xl"
                     />
                   </div>
@@ -681,12 +1012,12 @@ export default function VendorDashboard() {
                   <Input
                     value={itemForm.description}
                     onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
-                    placeholder="Brief details..."
+                    placeholder="Brief details & ingredients..."
                     className="rounded-2xl"
                   />
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Image URL</label>
                   <Input
                     value={itemForm.imageUrl}
@@ -694,19 +1025,40 @@ export default function VendorDashboard() {
                     placeholder="https://..."
                     className="rounded-2xl"
                   />
+                  {itemForm.imageUrl && (
+                    <div className="relative h-24 w-full rounded-2xl overflow-hidden border border-border bg-secondary">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={itemForm.imageUrl} alt="Item Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-3 pt-2">
-                  <input
-                    type="checkbox"
-                    id="isAvailable"
-                    checked={itemForm.isAvailable}
-                    onChange={(e) => setItemForm({ ...itemForm, isAvailable: e.target.checked })}
-                    className="w-4 h-4 rounded border-border"
-                  />
-                  <label htmlFor="isAvailable" className="text-sm font-semibold cursor-pointer">
-                    Available for customers
-                  </label>
+                <div className="flex flex-col gap-3 pt-2">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="isAvailable"
+                      checked={itemForm.isAvailable}
+                      onChange={(e) => setItemForm({ ...itemForm, isAvailable: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <label htmlFor="isAvailable" className="text-sm font-semibold cursor-pointer">
+                      Available for customer orders (In Stock)
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="isPopular"
+                      checked={itemForm.isPopular}
+                      onChange={(e) => setItemForm({ ...itemForm, isPopular: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <label htmlFor="isPopular" className="text-sm font-semibold cursor-pointer">
+                      Feature as Popular / Highlighted Item
+                    </label>
+                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-4 border-t border-border">
