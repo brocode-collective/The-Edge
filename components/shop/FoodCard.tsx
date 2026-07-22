@@ -152,7 +152,9 @@ export const FoodCard = ({ item, compact = false, shopName }: FoodCardProps) => 
                   toast.success(`${selectedQty} ${item.title} added to cart`);
                 }}
                 disabled={!item.isAvailable}
-                className="w-8 h-8 rounded-full bg-[#3AD07A] dark:bg-[#2DAA63] text-white grid place-items-center transition-colors focus-dashed disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className={`w-8 h-8 rounded-full text-white grid place-items-center transition-colors focus-dashed disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md ${
+                  isInCart ? "bg-[#3AD07A] dark:bg-[#2DAA63]" : "bg-foreground hover:bg-foreground/90"
+                }`}
               >
                 {isInCart ? (
                   <Check className="w-5 h-5 stroke-[3px]" />
