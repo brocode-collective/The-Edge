@@ -36,11 +36,11 @@ export const Header = () => {
 
   return (
     <header
-      className={`hidden md:block fixed w-full top-0 z-40 transition-all duration-300 border-b ${
+      className={`hidden md:block fixed w-full top-0 z-40 transition-all duration-100 border-b ${
         !isHome || scrolled ? "bg-background" : "bg-transparent"
       } ${scrolled ? "border-border" : "border-transparent"}`}
     >
-      <div className="container mx-auto px-4 flex items-center justify-between h-14">
+      <div className="container mx-auto px-4 flex items-center justify-between h-12">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group" id="header-logo">
           <span className="font-bold tracking-tight text-xl">The Edge</span>
