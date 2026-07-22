@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { 
-  Bell, Shield, LogOut, ChevronRight, Moon, Sun, 
+  Bell, LogOut, ChevronRight, Moon, Sun,
   BadgeCheck, Pencil, CreditCard, Heart, 
   HelpCircle, MessageSquare, FileText, ExternalLink, Check,
   Trophy, Star, Crown, Zap, Medal, Store, ArrowRight
@@ -224,7 +224,6 @@ export default function ProfilePage() {
                 {[
                   { icon: Bell, label: "Notifications", sub: "Control your alerts" },
                   { icon: CreditCard, label: "Payment Methods", sub: "Manage your cards" },
-                  { icon: Shield, label: "Privacy & Security", sub: "Data protection" },
                   { icon: HelpCircle, label: "Help Center", sub: "FAQs and guides" },
                 ].map((item, idx, arr) => (
                   <button 
