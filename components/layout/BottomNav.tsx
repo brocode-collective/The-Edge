@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Home, Compass, ShoppingBag, ReceiptText, User } from "lucide-react";
+import { Home, Compass, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { motion } from "framer-motion";
 
@@ -18,7 +18,6 @@ export const BottomNav = () => {
     { href: "/", label: "Home", icon: Home },
     { href: "/browse", label: "Browse", icon: Compass },
     { href: "/cart", label: "Cart", icon: ShoppingBag, badge: true },
-    { href: "/orders", label: "Orders", icon: ReceiptText },
     { href: "/profile", label: "Profile", icon: User },
   ];
 

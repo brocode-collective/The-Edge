@@ -9,6 +9,7 @@ import { NotificationLink } from "@/components/layout/NotificationLink";
 
 export const Header = () => {
   const count = useCart((s) => s.count());
+  const toggleDrawer = useCart((s) => s.toggleDrawer);
   const pathname = usePathname();
   const [mounted, setMounted] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
@@ -62,8 +63,9 @@ export const Header = () => {
         {/* Right actions */}
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/cart"
+            <button
+              type="button"
+              onClick={toggleDrawer}
               id="header-cart-btn"
               aria-label="Cart"
               className="relative flex w-8 h-8 items-center justify-center text-muted-foreground transition-smooth focus-dashed"
@@ -77,7 +79,7 @@ export const Header = () => {
                   {count}
                 </span>
               )}
-            </Link>
+            </button>
             <NotificationLink className="w-8 h-8 translate-y-0.5 hover:opacity-70" iconClassName="w-6 h-6" />
             <Link
               href="/profile"
