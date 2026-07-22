@@ -1,12 +1,25 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Briefcase, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { Briefcase, LayoutDashboard, ShieldCheck, ArrowRight, Store } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { useSupabaseUser, useMyApprovedShops } from "@/lib/supabase/hooks";
 
 export default function VendorLoginPage() {
+  const router = useRouter();
+  const { data: user } = useSupabaseUser();
+  const { data: shops = [], isLoading: shopsLoading } = useMyApprovedShops(user?.id);
+
+  useEffect(() => {
+    if (user && !shopsLoading && shops.length > 0) {
+      router.replace("/vendor");
+    }
+  }, [user, shops, shopsLoading, router]);
+
   return (
     <div className="flex-1 bg-background flex flex-col lg:flex-row overflow-hidden selection:bg-primary selection:text-primary-foreground">
       {/* 
@@ -48,7 +61,27 @@ export default function VendorLoginPage() {
               </div>
 
               <div className="space-y-6">
-                <GoogleSignInButton callbackNextPath="/vendor" mode="login" />
+                {user && shops.length > 0 ? (
+                  <div className="p-5 rounded-3xl bg-card border border-border space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">
+                        <Store className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm">Signed in as {user.email}</div>
+                        <div className="text-xs text-muted-foreground">Approved shop owner account</div>
+                      </div>
+                    </div>
+                    <Link
+                      href="/vendor"
+                      className="w-full pill bg-foreground text-background font-bold py-3 px-4 flex items-center justify-center gap-2 text-sm"
+                    >
+                      Go to Vendor Dashboard <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                ) : (
+                  <GoogleSignInButton callbackNextPath="/vendor" mode="login" />
+                )}
 
                 <div className="pt-2 flex items-center gap-2 text-xs text-muted-foreground">
                   <ShieldCheck className="w-4 h-4 text-primary" />

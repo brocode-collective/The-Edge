@@ -6,12 +6,12 @@ import {
   Bell, Shield, LogOut, ChevronRight, Moon, Sun, 
   BadgeCheck, Pencil, CreditCard, Heart, 
   HelpCircle, MessageSquare, FileText, ExternalLink, Check,
-  Trophy, Star, Crown, Zap, Medal
+  Trophy, Star, Crown, Zap, Medal, Store, ArrowRight
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ProfileAvatar } from "@/components/ui/ProfileAvatar";
-import { useSupabaseUser, useProfile, useUserOrders } from "@/lib/supabase/hooks";
+import { useSupabaseUser, useProfile, useUserOrders, useMyApprovedShops } from "@/lib/supabase/hooks";
 import { updateProfile } from "@/lib/supabase/data";
 import { useSignOut } from "@/lib/supabase/useSignOut";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const { data: user } = useSupabaseUser();
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const { data: orders = [] } = useUserOrders(user?.id);
+  const { data: shops = [] } = useMyApprovedShops(user?.id);
   const { signOut, isSigningOut } = useSignOut("/auth");
   
   const [tempName, setTempName] = React.useState("");
@@ -179,6 +180,27 @@ export default function ProfilePage() {
 
           {/* ── RIGHT COLUMN (Settings) ── */}
           <div className="flex-1 space-y-8">
+            {shops.length > 0 && (
+              <section>
+                <h3 className="label-mono mb-4 ml-2">Vendor Partner Account</h3>
+                <Link
+                  href="/vendor"
+                  className="bg-white dark:bg-card border border-primary/20 rounded-3xl overflow-hidden p-5 flex items-center justify-between hover:bg-primary/5 transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                      <Store className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-[16px]">Vendor Dashboard</div>
+                      <div className="text-[12px] text-muted-foreground font-medium">Switch to kitchen portal & manage orders</div>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </section>
+            )}
+
             <section>
               <h3 className="label-mono mb-4 ml-2">Appearance</h3>
               <div className="bg-white dark:bg-card border border-border rounded-3xl overflow-hidden p-5 flex items-center justify-between">
