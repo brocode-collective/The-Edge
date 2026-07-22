@@ -27,6 +27,7 @@ import {
   useUpdateMenuItemDietaryTags
 } from "@/lib/supabase/hooks";
 import { useSignOut } from "@/lib/supabase/useSignOut";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
@@ -603,6 +604,16 @@ export default function VendorDashboard() {
                   <Button onClick={handleSaveHours} disabled={updateHoursMutation.isPending} className="pill bg-foreground text-background w-full">
                     {updateHoursMutation.isPending ? "Saving..." : "Save Operating Hours"}
                   </Button>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-border bg-card p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">Appearance</h3>
+                    <p className="text-xs text-muted-foreground">Switch between light and dark theme modes</p>
+                  </div>
+                  <ThemeToggle />
                 </div>
               </div>
             </div>
