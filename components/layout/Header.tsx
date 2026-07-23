@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/store/cart";
 import { ProfileAvatar } from "@/components/ui/ProfileAvatar";
 import { NotificationLink } from "@/components/layout/NotificationLink";
+import { QuickThemeToggle } from "@/components/ui/QuickThemeToggle";
+import { CartIcon } from "@/components/ui/NavIcons";
 
 export const Header = () => {
   const count = useCart((s) => s.count());
@@ -63,6 +65,7 @@ export const Header = () => {
         {/* Right actions */}
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-3">
+            <QuickThemeToggle />
             <button
               type="button"
               onClick={toggleDrawer}
@@ -71,8 +74,7 @@ export const Header = () => {
               className="relative flex w-8 h-8 items-center justify-center text-muted-foreground transition-smooth focus-dashed"
             >
               <div className="relative w-6 h-6 translate-y-px hover:opacity-70 transition-smooth">
-                <img src="/icons/cart-solid-black.svg" alt="Cart" className="w-full h-full dark:hidden object-contain" loading="eager" decoding="sync" />
-                <img src="/icons/cart-solid-white.svg" alt="Cart" className="hidden w-full h-full dark:block object-contain" loading="eager" decoding="sync" />
+                <CartIcon filled className="w-full h-full text-foreground" />
               </div>
               {mounted && count > 0 && (
                 <span className="absolute -top-2 -right-2 inline-grid place-items-center min-w-5 h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold animate-scale-in">

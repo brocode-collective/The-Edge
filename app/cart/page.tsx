@@ -6,6 +6,7 @@ import { ArrowRight, AlertCircle, ReceiptText } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useShops } from "@/lib/supabase/hooks";
 import { CartShopSection } from "@/components/cart/CartShopSection";
+import { CartIcon } from "@/components/ui/NavIcons";
 
 function OrderHistoryLink() {
   return (
@@ -34,8 +35,7 @@ export default function CartPage() {
         </div>
         <div className="flex-1 flex flex-col items-center justify-center container mx-auto px-4 pb-16 md:pb-24 text-center">
           <div className="relative w-16 h-16 mx-auto mb-6">
-            <img src="/icons/cart-new-black.svg" alt="" className="w-full h-full dark:hidden object-contain" loading="eager" decoding="sync" />
-            <img src="/icons/cart-new-white.svg" alt="" className="hidden w-full h-full dark:block object-contain" loading="eager" decoding="sync" />
+            <CartIcon className="w-full h-full text-foreground" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Add items to start a cart</h1>
           <p className="text-muted-foreground mt-2 max-w-sm mx-auto">

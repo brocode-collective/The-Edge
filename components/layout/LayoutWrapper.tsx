@@ -8,6 +8,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 
 import { OfflineBanner } from "@/components/ui/OfflineBanner";
+import { FoodCardSkeleton, Skeleton } from "@/components/ui/Skeleton";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -47,7 +48,24 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const hideNav = isLoginPage || isSignupPage || isRegistrationPage || isVendorPage || isAuthPage;
 
   if (loading && !hideNav) {
-    return <div className="flex-1 bg-background" />;
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <div className="flex-1 flex flex-col pb-28 md:pb-0">
+          <main className="flex-1 flex flex-col">
+            <div className="container mx-auto px-4 py-8 md:pt-28 space-y-8">
+              <Skeleton className="h-8 w-48" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                {Array.from({ length: 8 }).map((_, idx) => (
+                  <FoodCardSkeleton key={idx} />
+                ))}
+              </div>
+            </div>
+          </main>
+        </div>
+        <BottomNav />
+      </div>
+    );
   }
 
   if (hideNav) {
@@ -62,7 +80,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="flex-1 flex flex-col pb-20 md:pb-0">
+      <div className="flex-1 flex flex-col pb-28 md:pb-0">
         <main className="flex-1 flex flex-col">
           {children}
         </main>

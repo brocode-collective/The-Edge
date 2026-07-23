@@ -9,12 +9,13 @@ import { ShopCard } from "@/components/shop/ShopCard";
 import { FoodCard } from "@/components/shop/FoodCard";
 import { useMenuItems, useServerFavorites, useShops, useSupabaseUser, useProfile } from "@/lib/supabase/hooks";
 import { NotificationLink } from "@/components/layout/NotificationLink";
+import { ShopCardSkeleton, FoodCardSkeleton } from "@/components/ui/Skeleton";
 
 export default function HomePage() {
   const [query, setQuery] = useState("");
   const router = useRouter();
-  const { data: shops = [] } = useShops();
-  const { data: items = [] } = useMenuItems();
+  const { data: shops = [], isLoading: shopsLoading } = useShops();
+  const { data: items = [], isLoading: itemsLoading } = useMenuItems();
   const { data: user } = useSupabaseUser();
   const { data: favorites = [] } = useServerFavorites(user?.id);
   const { data: profile } = useProfile(user?.id);
@@ -124,13 +125,35 @@ export default function HomePage() {
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Today&apos;s shops</h2>
         </div>
         <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide -mx-4 pt-2 pb-8 scroll-pl-4 scroll-pr-4">
-          {todaysShops.map((s, index) => (
-            <div key={s.id} className={`w-[260px] shrink-0 snap-start ${index === 0 ? 'ml-4' : ''} ${index === todaysShops.length - 1 ? 'mr-4' : ''}`}>
-              <ShopCard shop={s} />
-            </div>
-          ))}
+          {shopsLoading ? (
+            Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className={`w-[260px] shrink-0 ${idx === 0 ? 'ml-4' : ''}`}>
+                <ShopCardSkeleton />
+              </div>
+            ))
+          ) : (
+            todaysShops.map((s, index) => (
+              <div key={s.id} className={`w-[260px] shrink-0 snap-start ${index === 0 ? 'ml-4' : ''} ${index === todaysShops.length - 1 ? 'mr-4' : ''}`}>
+                <ShopCard shop={s} />
+              </div>
+            ))
+          )}
         </div>
       </section>
+
+      {/* ── POPULAR PICKS (loading skeleton, unconditional) ── */}
+      {itemsLoading && (
+        <section className="container mx-auto px-4 py-8">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6">Popular picks</h2>
+          <div className="flex gap-4 overflow-x-auto snap-x scrollbar-hide -mx-4 pt-2 pb-8 scroll-pl-4 scroll-pr-4">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className={`w-[200px] md:w-[240px] shrink-0 ${idx === 0 ? 'ml-4' : ''}`}>
+                <FoodCardSkeleton />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── FAVOURITES (Conditional) ── */}
       {hasFavorites && (

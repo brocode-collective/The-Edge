@@ -4,12 +4,14 @@ import { Heart } from "lucide-react";
 import Link from "next/link";
 import { FoodCard } from "@/components/shop/FoodCard";
 import { useAllMenuItems, useServerFavorites, useSupabaseUser } from "@/lib/supabase/hooks";
+import { FoodCardSkeleton } from "@/components/ui/Skeleton";
 
 export default function FavoritesPage() {
   const { data: user } = useSupabaseUser();
-  const { data: favorites = [] } = useServerFavorites(user?.id);
-  const { data: allItems = [] } = useAllMenuItems();
-  
+  const { data: favorites = [], isLoading: favoritesLoading } = useServerFavorites(user?.id);
+  const { data: allItems = [], isLoading: itemsLoading } = useAllMenuItems();
+  const isLoading = favoritesLoading || itemsLoading;
+
   const favItems = allItems.filter((i) => favorites.includes(i.id));
 
   return (
@@ -20,7 +22,13 @@ export default function FavoritesPage() {
           <p className="text-muted-foreground">The foods you love, all in one place.</p>
         </div>
 
-        {favItems.length > 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <FoodCardSkeleton key={idx} />
+            ))}
+          </div>
+        ) : favItems.length > 0 ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {favItems.map((i) => (
               <FoodCard key={i.id} item={i} />

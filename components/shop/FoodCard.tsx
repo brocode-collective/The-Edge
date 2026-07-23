@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Check, Heart, Minus, Plus } from "lucide-react";
+import { Check, Heart, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { MenuItem } from "@/lib/types";
 import { useCart } from "@/store/cart";
 import { useServerFavorites, useShopById, useSupabaseUser, useToggleFavorite } from "@/lib/supabase/hooks";
+import { AddToCartModal } from "@/components/shop/AddToCartModal";
 
 interface FoodCardProps {
   item: MenuItem;
@@ -22,7 +23,7 @@ export const FoodCard = ({ item, compact = false, shopName }: FoodCardProps) => 
   const toggleFavorite = useToggleFavorite();
   const serverFav = favorites.includes(item.id);
   const [optimisticFav, setOptimisticFav] = useState<boolean | null>(null);
-  const [selectedQty, setSelectedQty] = useState(1);
+  const [showAddModal, setShowAddModal] = useState(false);
   const fav = optimisticFav ?? serverFav;
   const { data: shop } = useShopById(item.shopId);
   const isInCart = items.some((cartItem) => cartItem.item.id === item.id);
@@ -118,41 +119,21 @@ export const FoodCard = ({ item, compact = false, shopName }: FoodCardProps) => 
             </div>
             
             <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
-              <div className="flex h-8 items-center rounded-full bg-secondary text-foreground border border-border overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setSelectedQty((qty) => Math.max(1, qty - 1))}
-                  className="w-8 sm:w-7 h-8 grid place-items-center hover:bg-background transition-smooth focus-dashed disabled:opacity-40"
-                  disabled={selectedQty <= 1}
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="w-3.5 h-3.5 stroke-[3px]" />
-                </button>
-                <span className="min-w-6 text-center text-xs sm:text-sm font-bold">{selectedQty}</span>
-                <button
-                  type="button"
-                  onClick={() => setSelectedQty((qty) => qty + 1)}
-                  className="w-8 sm:w-7 h-8 grid place-items-center hover:bg-background transition-smooth focus-dashed"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="w-3.5 h-3.5 stroke-[3px]" />
-                </button>
-              </div>
               <button
                 id={`add-to-cart-${item.id}`}
                 onClick={() => {
                   if (!item.isAvailable) return;
                   if (isInCart) {
                     remove(item.id);
-                    setSelectedQty(1);
                     toast.error(`${item.title} removed from cart`);
                     return;
                   }
-                  add(item, selectedQty);
-                  toast.success(`${selectedQty} ${item.title} added to cart`);
+                  setShowAddModal(true);
                 }}
                 disabled={!item.isAvailable}
-                className="w-8 h-8 rounded-full bg-[#3AD07A] dark:bg-[#2DAA63] text-white grid place-items-center transition-colors focus-dashed disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className={`w-8 h-8 rounded-full text-white grid place-items-center transition-colors focus-dashed disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md ${
+                  isInCart ? "bg-[#3AD07A] dark:bg-[#2DAA63]" : "bg-foreground hover:bg-foreground/90 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                }`}
               >
                 {isInCart ? (
                   <Check className="w-5 h-5 stroke-[3px]" />
@@ -164,6 +145,18 @@ export const FoodCard = ({ item, compact = false, shopName }: FoodCardProps) => 
           </div>
         </div>
       </div>
+
+      <AddToCartModal
+        item={item}
+        shopName={shopName ?? shop?.name}
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onConfirm={(qty, opts) => {
+          add(item, qty, opts);
+          setShowAddModal(false);
+          toast.success(`${qty} ${item.title} added to cart`);
+        }}
+      />
     </article>
   );
 };

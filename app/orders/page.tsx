@@ -9,6 +9,7 @@ import { useCart } from "@/store/cart";
 import { toast } from "sonner";
 import { displayReferenceNumber } from "@/lib/types";
 import { useUserOrders, useSupabaseUser } from "@/lib/supabase/hooks";
+import { BillIcon } from "@/components/ui/NavIcons";
 
 type TimeFilter = "all" | "today" | "week" | "month";
 
@@ -322,8 +323,7 @@ export default function OrdersPage() {
         ) : hasAnyOrders ? (
           <div className="text-center py-16">
             <div className="relative w-16 h-16 mx-auto mb-6">
-              <img src="/icons/bill-line-black.svg" alt="" className="w-full h-full dark:hidden object-contain" loading="eager" decoding="sync" />
-              <img src="/icons/bill-line-white.svg" alt="" className="hidden w-full h-full dark:block object-contain" loading="eager" decoding="sync" />
+              <BillIcon className="w-full h-full text-foreground" />
             </div>
             <h2 className="text-xl font-bold tracking-tight">No orders {timeFilter === "all" ? "found" : `${timeFilters.find((f) => f.id === timeFilter)?.label.toLowerCase()}`}</h2>
             <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
@@ -333,8 +333,7 @@ export default function OrdersPage() {
         ) : (
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-6">
-              <img src="/icons/bill-line-black.svg" alt="" className="w-full h-full dark:hidden object-contain" loading="eager" decoding="sync" />
-              <img src="/icons/bill-line-white.svg" alt="" className="hidden w-full h-full dark:block object-contain" loading="eager" decoding="sync" />
+              <BillIcon className="w-full h-full text-foreground" />
             </div>
             <h2 className="text-3xl font-bold tracking-tight">No orders yet</h2>
             <p className="text-muted-foreground mt-2 max-w-sm mx-auto">

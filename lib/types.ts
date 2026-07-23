@@ -73,7 +73,6 @@ export type UserProfile = {
   email: string;
   avatarUrl?: string;
   totalOrders: number;
-  tier: string;
 };
 
 export type PerShopOrder = {

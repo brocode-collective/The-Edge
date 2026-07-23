@@ -6,6 +6,7 @@ import { Search, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { FoodCard } from "@/components/shop/FoodCard";
 import { useMenuItems, useShops } from "@/lib/supabase/hooks";
+import { FoodCardSkeleton } from "@/components/ui/Skeleton";
 
 const CATEGORIES = [
   { id: "all", label: "All", emoji: "🍱" },
@@ -45,8 +46,9 @@ function BrowseContent() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [visibleCount, setVisibleCount] = useState(12);
-  const { data: shops = [] } = useShops();
-  const { data: items = [] } = useMenuItems();
+  const { data: shops = [], isLoading: shopsLoading } = useShops();
+  const { data: items = [], isLoading: itemsLoading } = useMenuItems();
+  const isLoading = shopsLoading || itemsLoading;
   const shopNames = useMemo(
     () => new Map(shops.map((shop) => [shop.id, shop.name])),
     [shops]
@@ -267,6 +269,14 @@ function BrowseContent() {
 
             {/* Food grid */}
             <div className="flex-1">
+              {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {Array.from({ length: 8 }).map((_, idx) => (
+                    <FoodCardSkeleton key={idx} />
+                  ))}
+                </div>
+              ) : (
+                <>
               <div className="text-sm text-muted-foreground mb-4">
                 {filtered.length} item{filtered.length !== 1 ? "s" : ""} found
               </div>
@@ -276,8 +286,8 @@ function BrowseContent() {
                     key={i.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.4, 
+                    transition={{
+                      duration: 0.4,
                       delay: (idx % 8) * 0.05,
                       ease: [0.23, 1, 0.32, 1]
                     }}
@@ -300,6 +310,8 @@ function BrowseContent() {
                 <div className="text-center py-20 text-muted-foreground bg-secondary/30 rounded-[2rem] border border-dashed border-border">
                   No items found matching your filters.
                 </div>
+              )}
+                </>
               )}
             </div>
           </div>
