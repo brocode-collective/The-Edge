@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
+import { dietaryFilters } from "@/lib/designSystem";
 import type { OrderStatus } from "@/lib/types";
 import type { VendorOrder } from "@/lib/supabase/data";
 
@@ -76,6 +77,7 @@ export default function VendorDashboard() {
     badge: "",
     isPopular: false,
     searchKeywords: "",
+    dietaryTags: [] as string[],
   });
 
   // Settings State
@@ -225,6 +227,7 @@ export default function VendorDashboard() {
         badge: item.badge || "",
         isPopular: item.popular ?? false,
         searchKeywords: item.searchKeywords ? item.searchKeywords.join(", ") : "",
+        dietaryTags: item.dietaryTags || [],
       });
     } else {
       setEditingItemId(null);
@@ -241,6 +244,7 @@ export default function VendorDashboard() {
         badge: "",
         isPopular: false,
         searchKeywords: "",
+        dietaryTags: [],
       });
     }
     setIsItemModalOpen(true);
@@ -280,6 +284,7 @@ export default function VendorDashboard() {
             badge: itemForm.badge || null,
             is_popular: itemForm.isPopular,
             search_keywords: keywordsArray,
+            dietary_tags: itemForm.dietaryTags,
           },
         });
         toast.success("Menu item updated");
@@ -298,6 +303,7 @@ export default function VendorDashboard() {
           badge: itemForm.badge || null,
           isPopular: itemForm.isPopular,
           searchKeywords: keywordsArray,
+          dietaryTags: itemForm.dietaryTags,
         });
         toast.success("Menu item created");
       }
@@ -317,8 +323,13 @@ export default function VendorDashboard() {
     }
   };
 
-  const toggleDietaryTag = async (menuItemId: string, currentTags: string[], tag: "Vegan" | "Vegetarian") => {
-    const nextTags = currentTags.includes(tag)
+  const toggleDietaryTag = async (menuItemId: string, currentTags: string[], tag: string) => {
+    const isRemoving = currentTags.includes(tag);
+    if (!isRemoving && currentTags.length >= 3) {
+      toast.error("Maximum 3 tags allowed per item");
+      return;
+    }
+    const nextTags = isRemoving
       ? currentTags.filter((itemTag) => itemTag !== tag)
       : [...currentTags, tag];
 
@@ -694,26 +705,15 @@ export default function VendorDashboard() {
                         {item.isAvailable ? "In Stock" : "Out of Stock"}
                       </button>
 
-                      <div className="flex flex-wrap gap-1.5">
-                        {(["Vegan", "Vegetarian"] as const).map((tag) => {
-                          const active = item.dietaryTags.includes(tag);
-                          return (
-                            <button
-                              key={tag}
-                              type="button"
-                              onClick={() => toggleDietaryTag(item.id, item.dietaryTags, tag)}
-                              disabled={updateDietaryTags.isPending}
-                              className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all disabled:opacity-60 ${
-                                active
-                                  ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
-                                  : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground"
-                              }`}
-                            >
-                              {active && <Check className="mr-1 inline h-3 w-3" />}
-                              {tag}
-                            </button>
-                          );
-                        })}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {item.dietaryTags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -1010,6 +1010,55 @@ export default function VendorDashboard() {
                     className="rounded-2xl"
                   />
                   <p className="text-[11px] text-muted-foreground">Add alternative names or spellings so customers can easily find this item in search.</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Tags (Select max 3)
+                    </label>
+                    <span className="text-[11px] font-semibold text-muted-foreground">
+                      {itemForm.dietaryTags.length}/3 selected
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 p-3 rounded-2xl bg-secondary/30 border border-border/50">
+                    {dietaryFilters.map((tag) => {
+                      const selected = itemForm.dietaryTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => {
+                            if (selected) {
+                              setItemForm({
+                                ...itemForm,
+                                dietaryTags: itemForm.dietaryTags.filter((t) => t !== tag),
+                              });
+                            } else {
+                              if (itemForm.dietaryTags.length >= 3) {
+                                toast.error("Maximum 3 tags allowed per item");
+                                return;
+                              }
+                              setItemForm({
+                                ...itemForm,
+                                dietaryTags: [...itemForm.dietaryTags, tag],
+                              });
+                            }
+                          }}
+                          className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+                            selected
+                              ? "bg-primary text-primary-foreground shadow-soft"
+                              : itemForm.dietaryTags.length >= 3
+                              ? "bg-secondary text-muted-foreground/50 opacity-50 cursor-not-allowed"
+                              : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                          }`}
+                        >
+                          {selected && <Check className="mr-1 inline h-3 w-3" />}
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
 
