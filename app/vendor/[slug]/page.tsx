@@ -511,11 +511,7 @@ export default function VendorDashboard() {
                 ))}
               </div>
             )}
-            {tab === "menu" && (
-              <Button onClick={() => handleOpenItemModal()} className="pill bg-primary text-primary-foreground text-xs font-bold px-4 py-2">
-                <Plus className="w-4 h-4 mr-1.5" /> Add Menu Item
-              </Button>
-            )}
+
           </div>
         </div>
 
